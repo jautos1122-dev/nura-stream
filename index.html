@@ -22,7 +22,7 @@
         .section-title { font-size: 17px; font-weight: 700; margin: 20px 16px 12px; color: #00d2ff; }
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; padding: 0 16px; }
         
-        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; cursor: pointer; }
+        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; }
         .poster-box { width: 100%; height: 200px; background: #1a2332; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -30,9 +30,14 @@
         
         .movie-info { padding: 8px 10px; }
         .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .play-actions { display: flex; gap: 6px; margin-top: 6px; }
-        .btn-stream { flex: 1; background: #00d2ff; color: #000; text-align: center; text-decoration: none; font-size: 11px; font-weight: bold; padding: 6px 0; border-radius: 4px; }
-        .btn-vlc { flex: 1; background: #ff7700; color: #fff; text-align: center; text-decoration: none; font-size: 11px; font-weight: bold; padding: 6px 0; border-radius: 4px; }
+        .btn-stream { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; margin-top: 8px; cursor: pointer; border: none; }
+
+        /* TV & Web Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #111; border-bottom: 1px solid #222; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        iframe { width: 100%; height: 100%; border: none; flex: 1; }
     </style>
 </head>
 <body>
@@ -45,28 +50,28 @@
     <!-- Movie Add Form -->
     <div class="form-box" id="movieForm">
         <h3>🎬 புதிய படத்தை சேர்க்க</h3>
-        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: இதயம் முரளி, Leo, GOAT)" required>
+        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: இதயம் முரளி, Leo)" required>
         <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல்)">
         <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
         <button class="submit-btn" onclick="addNewMovie()">Save Movie</button>
     </div>
 
-    <div class="section-title">🍿 My Movies (எனது படங்கள்)</div>
+    <div class="section-title">🍿 My Personal Cinema (எனது படங்கள்)</div>
     <div class="movie-grid" id="movieContainer"></div>
 
-    <script>
-        const defaultMovies = [
-            {
-                id: 1,
-                name: "இதயம் முரளி",
-                poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80",
-                link: "magnet:?xt=urn:btih:demo"
-            }
-        ];
+    <!-- TV Fullscreen Web Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff;">Playing...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <iframe id="streamFrame" allowfullscreen></iframe>
+    </div>
 
+    <script>
         function getMovies() {
             const saved = localStorage.getItem('nura_movies');
-            return saved ? JSON.parse(saved) : defaultMovies;
+            return saved ? JSON.parse(saved) : [];
         }
 
         function saveMovies(list) {
@@ -84,7 +89,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("பெயர் மற்றும் Magnet லிங்க்கை உள்ளிடவும்!");
+                alert("தயவுசெய்து படத்தின் பெயர் மற்றும் Magnet Link-ஐ உள்ளிடவும்!");
                 return;
             }
 
@@ -102,12 +107,29 @@
             toggleForm();
         }
 
-        function deleteMovie(e, id) {
-            e.stopPropagation();
-            if (confirm("நீக்கவா?")) {
+        function deleteMovie(id) {
+            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
                 let movies = getMovies().filter(m => m.id !== id);
                 saveMovies(movies);
             }
+        }
+
+        function openTVPlayer(title, magnetLink) {
+            const modal = document.getElementById('playerModal');
+            const frame = document.getElementById('streamFrame');
+            const pTitle = document.getElementById('playingTitle');
+
+            pTitle.innerText = "Playing: " + title;
+            // Universal Web Player that runs inside TV browser without ERR_UNKNOWN_URL_SCHEME
+            frame.src = "https://instant.io/#" + encodeURIComponent(magnetLink);
+            modal.classList.add('active');
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const frame = document.getElementById('streamFrame');
+            frame.src = "";
+            modal.classList.remove('active');
         }
 
         function render() {
@@ -115,24 +137,22 @@
             const movies = getMovies();
             container.innerHTML = '';
 
-            movies.forEach(m => {
-                // Online Cloud Fast Engine URL
-                const cloudStreamUrl = "https://webtorrent.io/torrent/" + encodeURIComponent(m.link);
-                const magnetUrl = m.link;
+            if (movies.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மேலே உள்ள "➕ Add Movie" தொட்டு உண்மையான TamilMV Magnet Link சேர்த்து பார்க்கவும்.</div>';
+                return;
+            }
 
+            movies.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteMovie(event, ${m.id})">✕</button>
+                    <button class="delete-btn" onclick="deleteMovie(${m.id})">✕</button>
                     <div class="poster-box">
-                        <img src="${m.poster}" alt="${m.name}">
+                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="play-actions">
-                            <a class="btn-stream" href="${magnetUrl}">▶ Play</a>
-                            <a class="btn-vlc" href="vlc://${magnetUrl}">VLC</a>
-                        </div>
+                        <button class="btn-stream" onclick="openTVPlayer('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Play Now</button>
                     </div>
                 `;
                 container.appendChild(card);
