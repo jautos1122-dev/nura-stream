@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NURA STREAM - Personal OTT</title>
+    <!-- WebTorrent for Direct In-Browser Torrent Playback -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
         
-        /* Navbar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
         .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
 
-        /* Modal Form */
+        /* Form Modal */
         .form-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
         .form-modal.active { display: flex; }
         .form-box { background: #131a24; width: 100%; max-width: 480px; padding: 24px; border-radius: 12px; border: 1px solid #232d3d; }
@@ -36,8 +37,17 @@
         .movie-info { padding: 12px; }
         .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; margin-bottom: 10px; }
         
-        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; cursor: pointer; border: none; }
+        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; cursor: pointer; border: none; }
         .play-btn:hover { background: #ff1e2b; }
+
+        /* Fullscreen OTT Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #07090c; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; flex-direction: column; }
+        video { width: 100%; max-height: 85vh; outline: none; }
+        #statusText { font-size: 16px; color: #00d2ff; padding: 20px; text-align: center; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -53,7 +63,7 @@
             <h3>🎬 புதிய படம் சேர்க்க (டிவியிலும் உடனே வரும்)</h3>
             <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல் - பெயர் போட்டாலே வரும்)">
-            <input type="text" id="mLink" placeholder="TamilMV Video / Magnet Link" required>
+            <input type="text" id="mLink" placeholder="TamilMV Magnet Link / Video Link" required>
             <button class="submit-btn" onclick="saveToCloud()">Save Movie</button>
             <button class="cancel-btn" onclick="closeForm()">Cancel</button>
         </div>
@@ -64,8 +74,21 @@
         <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
 
+    <!-- In-App Fullscreen Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Connecting...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <div class="player-body" id="videoBox">
+            <video id="htmlPlayer" controls autoplay playsinline style="display:none;"></video>
+            <div id="statusText">Connecting to TamilMV stream... Please wait 10-15 seconds.</div>
+        </div>
+    </div>
+
     <script>
         const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
+        let client = new WebTorrent();
 
         function openForm() { document.getElementById('formModal').classList.add('active'); }
         function closeForm() { document.getElementById('formModal').classList.remove('active'); }
@@ -128,14 +151,46 @@
             }
         }
 
-        function playMovie(link) {
-            // If it's a web stream link, open directly
-            if (link.startsWith('http://') || link.startsWith('https://')) {
-                window.location.href = link;
-            } else if (link.startsWith('magnet:')) {
-                // If it's a magnet link, trigger intent for MX/VLC Player or Web Stream
-                window.location.href = link;
+        function playMovie(title, link) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            const status = document.getElementById('statusText');
+            const pTitle = document.getElementById('playingTitle');
+
+            pTitle.innerText = "Playing: " + title;
+            modal.classList.add('active');
+            player.style.display = 'none';
+            status.style.display = 'block';
+            status.innerHTML = 'Connecting to Peers... தயவுசெய்து 10 வினாடிகள் காத்திருக்கவும்.';
+
+            if (link.startsWith('magnet:')) {
+                client.add(link, function (torrent) {
+                    status.style.display = 'none';
+                    player.style.display = 'block';
+                    const file = torrent.files.find(f => f.name.endsWith('.mp4') || f.name.endsWith('.mkv') || f.name.endsWith('.webm') || f.name.endsWith('.avi'));
+                    if (file) {
+                        file.renderTo(player, { autoplay: true });
+                    }
+                });
+            } else {
+                status.style.display = 'none';
+                player.style.display = 'block';
+                player.src = link;
+                player.play().catch(e => console.log(e));
             }
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            player.pause();
+            player.src = '';
+            
+            if (client) {
+                client.destroy();
+                client = new WebTorrent();
+            }
+            modal.classList.remove('active');
         }
 
         function render(data) {
@@ -159,7 +214,7 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <button class="play-btn" onclick="playMovie('${m.link.replace(/'/g, "\\'")}')">▶ Watch Movie</button>
+                        <button class="play-btn" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Watch Movie</button>
                     </div>
                 `;
                 container.appendChild(card);
