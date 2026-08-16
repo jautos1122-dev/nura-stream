@@ -3,118 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NURA STREAM - Auto Movies</title>
+    <title>NURA STREAM - Personal Cinema</title>
+    <!-- WebTorrent for RAM-based Streaming (Zero Storage Usage) -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
+        body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
+        /* Navbar */
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #07090c; border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
+        .add-btn { background: #00d2ff; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
-        .section-title { font-size: 17px; font-weight: 700; margin: 24px 16px 12px; color: #00d2ff; }
-        .movie-row { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 10px; scrollbar-width: none; }
-        .movie-row::-webkit-scrollbar { display: none; }
+        /* Add Movie Form */
+        .form-box { display: none; background: #131a24; padding: 18px; margin: 16px; border-radius: 10px; border: 1px solid #232d3d; }
+        .form-box.active { display: block; }
+        .form-box h3 { margin-bottom: 14px; color: #00d2ff; font-size: 16px; }
+        .form-box input { width: 100%; padding: 12px; margin-bottom: 12px; background: #0b0e14; border: 1px solid #2a3547; color: #fff; border-radius: 6px; font-size: 14px; outline: none; }
+        .form-box .submit-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+
+        /* Movie Section */
+        .section-title { font-size: 17px; font-weight: 700; margin: 20px 16px 12px; color: #00d2ff; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; padding: 0 16px; }
         
-        .movie-card { min-width: 145px; width: 145px; background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; }
+        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; cursor: pointer; transition: transform 0.2s; }
         .movie-card:active { transform: scale(0.96); }
-        .poster-box { width: 100%; height: 210px; background: #1a2332; position: relative; }
+        .poster-box { width: 100%; height: 200px; background: #1a2332; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
-        .play-tag { position: absolute; bottom: 8px; right: 8px; background: rgba(0, 210, 255, 0.9); color: #000; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
         
-        .movie-info { padding: 8px; }
+        .delete-btn { position: absolute; top: 6px; right: 6px; background: rgba(229, 9, 20, 0.85); color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .movie-info { padding: 8px 10px; }
         .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-sub { font-size: 11px; color: #00d2ff; margin-top: 3px; }
+        .movie-sub { font-size: 11px; color: #00d2ff; margin-top: 3px; font-weight: 600; }
 
-        /* Video Player */
-        .player-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .player-container.active { display: flex; }
-        .video-box { width: 100%; max-width: 900px; background: #000; }
-        video { width: 100%; max-height: 75vh; }
-        .close-bar { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #111; }
-        .playing-title { font-size: 14px; font-weight: bold; color: #00d2ff; }
-        .btn-close { background: #e50914; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* Video Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
+        .player-modal.active { display: flex; }
+        .player-header { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #111; border-bottom: 1px solid #222; }
+        .player-body { width: 100%; max-width: 900px; background: #000; position: relative; min-height: 250px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        video { width: 100%; max-height: 75vh; outline: none; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        #statusText { font-size: 14px; color: #00d2ff; padding: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="logo">NURA <span>STREAM</span></div>
+        <button class="add-btn" onclick="toggleForm()">➕ Add Movie</button>
     </div>
 
-    <!-- Container 1 -->
-    <div class="section-title">🔥 Tamil Movies (புதிய படங்கள்)</div>
-    <div class="movie-row" id="tamilContainer">
-        <p style="padding: 10px; color: #777;">Loading latest movies...</p>
+    <!-- Movie Add Form -->
+    <div class="form-box" id="movieForm">
+        <h3>🎬 புதிய திரைப்படத்தை சேர்க்க</h3>
+        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
+        <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல் - கொடுக்காவிட்டால் தானாகவே வரும்)">
+        <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...) அல்லது நேரடி வீடியோ லிங்க்" required>
+        <button class="submit-btn" onclick="addNewMovie()">Save & Add to Stream</button>
     </div>
 
-    <!-- Container 2 -->
-    <div class="section-title">🎙️ Tamil Dubbed Movies</div>
-    <div class="movie-row" id="dubbedContainer">
-        <p style="padding: 10px; color: #777;">Loading dubbed movies...</p>
-    </div>
+    <!-- Movie Grid -->
+    <div class="section-title">🍿 My Personal Cinema (எனது படங்கள்)</div>
+    <div class="movie-grid" id="movieContainer"></div>
 
-    <!-- Video Modal -->
-    <div class="player-container" id="videoContainer">
-        <div class="close-bar">
-            <span class="playing-title" id="nowPlaying">Playing...</span>
-            <button class="btn-close" onclick="closeMovie()">✕ Close</button>
+    <!-- Fullscreen Video Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff;">Playing...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
         </div>
-        <div class="video-box">
-            <video id="mainVideo" controls playsinline></video>
+        <div class="player-body" id="videoBox">
+            <video id="htmlPlayer" controls playsinline></video>
+            <div id="statusText" style="display:none;">Connecting to TamilMV Network... Please wait 10-20 seconds for RAM buffering.</div>
         </div>
     </div>
 
     <script>
-        // movies.json-லிருந்து தானாகப் படங்களை லோட் செய்யும் ஸ்கிரிப்ட்
-        fetch('movies.json')
-            .then(res => res.json())
-            .then(data => {
-                renderMovies(data.tamil, 'tamilContainer');
-                renderMovies(data.dubbed, 'dubbedContainer');
-            })
-            .catch(err => {
-                console.log('Fallback to local storage', err);
-            });
+        let client = new WebTorrent();
 
-        function renderMovies(list, containerId) {
-            const container = document.getElementById(containerId);
-            if (!list || list.length === 0) return;
+        const defaultMovies = [
+            {
+                id: 1,
+                name: "Leo (2023)",
+                poster: "https://m.media-amazon.com/images/M/MV5BMmFiZGZjMmEtMTA0Ni00MzA2LTljMTYtZGI2MGJmZWYzZTQ2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                link: "https://vjs.zencdn.net/v/oceans.mp4"
+            },
+            {
+                id: 2,
+                name: "Amaran (2024)",
+                poster: "https://m.media-amazon.com/images/M/MV5BMjA5MjYwMTEtNjBkYS00NTg4LWIxZTUtNjY3MGQ4M2Q1NDVjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                link: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
+            }
+        ];
+
+        function getMovies() {
+            const saved = localStorage.getItem('nura_movies');
+            return saved ? JSON.parse(saved) : defaultMovies;
+        }
+
+        function saveMovies(list) {
+            localStorage.setItem('nura_movies', JSON.stringify(list));
+            render();
+        }
+
+        function toggleForm() {
+            const form = document.getElementById('movieForm');
+            form.classList.toggle('active');
+        }
+
+        function addNewMovie() {
+            const name = document.getElementById('mName').value.trim();
+            let poster = document.getElementById('mPoster').value.trim();
+            const link = document.getElementById('mLink').value.trim();
+
+            if (!name || !link) {
+                alert("தயவுசெய்து படத்தின் பெயரையும் லிங்க்கையும் உள்ளிடவும்!");
+                return;
+            }
+
+            if (!poster) {
+                poster = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80";
+            }
+
+            const movies = getMovies();
+            movies.unshift({ id: Date.now(), name: name, poster: poster, link: link });
+            saveMovies(movies);
+
+            document.getElementById('mName').value = '';
+            document.getElementById('mPoster').value = '';
+            document.getElementById('mLink').value = '';
+            toggleForm();
+        }
+
+        function deleteMovie(e, id) {
+            e.stopPropagation();
+            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
+                let movies = getMovies();
+                movies = movies.filter(m => m.id !== id);
+                saveMovies(movies);
+            }
+        }
+
+        function render() {
+            const container = document.getElementById('movieContainer');
+            const movies = getMovies();
             container.innerHTML = '';
-            list.forEach(m => {
+
+            movies.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
-                card.onclick = () => startMovie(m.title, m.stream);
+                card.onclick = () => playStream(m.name, m.link);
                 card.innerHTML = `
+                    <button class="delete-btn" onclick="deleteMovie(event, ${m.id})">✕</button>
                     <div class="poster-box">
-                        <img src="${m.poster}" alt="${m.title}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80'">
-                        <span class="play-tag">▶ Play</span>
+                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="movie-info">
-                        <div class="movie-title">${m.title}</div>
-                        <div class="movie-sub">${m.quality}</div>
+                        <div class="movie-title">${m.name}</div>
+                        <div class="movie-sub">▶ Play Now</div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        const playerBox = document.getElementById('videoContainer');
-        const mainVideo = document.getElementById('mainVideo');
-        const nowPlaying = document.getElementById('nowPlaying');
+        function playStream(title, url) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            const status = document.getElementById('statusText');
+            const pTitle = document.getElementById('playingTitle');
 
-        function startMovie(title, url) {
-            nowPlaying.innerText = "Playing: " + title;
-            mainVideo.src = url;
-            playerBox.classList.add('active');
-            mainVideo.play().catch(e => console.log(e));
+            pTitle.innerText = "Playing: " + title;
+            modal.classList.add('active');
+
+            if (url.startsWith('magnet:')) {
+                player.style.display = 'none';
+                status.style.display = 'block';
+                status.innerText = "Buffering directly to RAM... Connecting to Peers. Please wait 10-20 seconds.";
+
+                // RAM-based streaming
+                client.add(url, function (torrent) {
+                    status.style.display = 'none';
+                    player.style.display = 'block';
+                    const file = torrent.files.find(f => f.name.endsWith('.mp4') || f.name.endsWith('.mkv') || f.name.endsWith('.webm'));
+                    if (file) {
+                        file.renderTo(player, { autoplay: true });
+                    }
+                });
+            } else {
+                status.style.display = 'none';
+                player.style.display = 'block';
+                player.src = url;
+                player.play().catch(e => console.log(e));
+            }
         }
 
-        function closeMovie() {
-            mainVideo.pause();
-            mainVideo.src = '';
-            playerBox.classList.remove('active');
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            player.pause();
+            player.src = '';
+            
+            // Destroy torrent connection to instantly free RAM
+            if (client) {
+                client.destroy();
+                client = new WebTorrent();
+            }
+            modal.classList.remove('active');
         }
+
+        render();
     </script>
 </body>
 </html>
