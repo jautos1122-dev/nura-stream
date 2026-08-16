@@ -4,118 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nura TV Stream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: #0b0c10; color: #fff; overflow-x: hidden; padding-bottom: 50px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #0d0f12; color: #fff; padding-bottom: 60px; }
         
-        /* Header / Navbar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent); position: fixed; width: 100%; top: 0; z-index: 100; }
-        .logo { font-size: 26px; font-weight: 900; color: #e50914; letter-spacing: 2px; text-transform: uppercase; }
+        /* Navbar */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(13, 15, 18, 0.95); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .logo { font-size: 24px; font-weight: 800; color: #e50914; letter-spacing: 1.5px; }
         .logo span { color: #00d2ff; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: #e5e5e5; text-decoration: none; font-size: 15px; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: #00d2ff; font-weight: bold; }
 
-        /* Hero Spotlight Banner */
-        .hero { position: relative; height: 60vh; background: linear-gradient(to right, rgba(11,12,16,0.95) 20%, rgba(11,12,16,0.2) 80%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; display: flex; align-items: center; padding: 0 40px; margin-top: 60px; }
-        .hero-content { max-width: 600px; }
-        .hero-title { font-size: 42px; font-weight: 800; margin-bottom: 10px; color: #fff; }
-        .hero-meta { display: flex; gap: 12px; font-size: 14px; color: #aaa; margin-bottom: 15px; }
-        .hero-meta span.badge { background: #e50914; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .btn-play { background: #00d2ff; color: #000; border: none; padding: 12px 28px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, background 0.3s; }
-        .btn-play:hover { background: #fff; transform: scale(1.05); }
+        /* Hero Banner */
+        .hero { position: relative; height: 260px; background: linear-gradient(180deg, rgba(0,0,0,0.2), #0d0f12), url('https://image.tmdb.org/t/p/original/b33nnKl1GSJbao4l3fZDDqsMx0F.jpg') center/cover no-repeat; display: flex; align-items: flex-end; padding: 20px; }
+        .hero-title { font-size: 26px; font-weight: 800; text-shadow: 2px 2px 10px rgba(0,0,0,0.9); }
+        .hero-btn { background: #00d2ff; color: #000; font-weight: 700; border: none; padding: 10px 22px; border-radius: 6px; margin-top: 10px; cursor: pointer; }
 
-        /* Movie Sections */
-        .section-title { font-size: 20px; font-weight: 700; margin: 30px 40px 15px; color: #fff; display: flex; align-items: center; gap: 8px; }
-        .movie-row { display: flex; gap: 15px; overflow-x: auto; padding: 10px 40px; scrollbar-width: none; }
+        /* Sections */
+        .section-title { font-size: 18px; font-weight: 700; margin: 24px 20px 12px; color: #00d2ff; display: flex; align-items: center; gap: 8px; }
+        .movie-row { display: flex; gap: 14px; overflow-x: auto; padding: 0 20px 10px; scrollbar-width: none; }
         .movie-row::-webkit-scrollbar { display: none; }
         
-        .movie-card { min-width: 170px; width: 170px; border-radius: 8px; overflow: hidden; background: #1f2833; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; flex-shrink: 0; outline: none; }
-        .movie-card:focus, .movie-card:hover { transform: scale(1.08); box-shadow: 0 10px 20px rgba(0,210,255,0.3); border: 2px solid #00d2ff; }
-        .movie-card img { width: 100%; height: 240px; object-fit: cover; }
-        .movie-info { padding: 10px; }
-        .movie-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-sub { font-size: 12px; color: #888; margin-top: 4px; }
+        .movie-card { min-width: 140px; width: 140px; border-radius: 8px; overflow: hidden; background: #1a1e24; cursor: pointer; transition: transform 0.2s; border: 1px solid #2a313d; }
+        .movie-card:active, .movie-card:hover { transform: scale(1.05); border-color: #00d2ff; }
+        .movie-card img { width: 100%; height: 200px; object-fit: cover; background: #111; }
+        .movie-info { padding: 8px; }
+        .movie-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-sub { font-size: 11px; color: #00d2ff; margin-top: 2px; }
 
         /* Video Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; }
-        .modal video { width: 90%; max-width: 1000px; border-radius: 8px; outline: none; }
-        .close-btn { position: absolute; top: 20px; right: 30px; font-size: 30px; color: #fff; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .modal video { width: 95%; max-width: 800px; border-radius: 8px; }
+        .close-btn { align-self: flex-end; margin-right: 5%; color: #fff; font-size: 32px; cursor: pointer; padding: 10px; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="logo">NURA <span>STREAM</span></div>
-        <div class="nav-links">
-            <a href="#" class="active">Home</a>
-            <a href="#tamil">Tamil Movies</a>
-            <a href="#dubbed">Tamil Dubbed</a>
-            <a href="#uhd">4K UHD</a>
-        </div>
     </div>
 
     <div class="hero">
-        <div class="hero-content">
-            <div class="hero-title">LEO (2024)</div>
-            <div class="hero-meta">
-                <span class="badge">4K ULTRA HD</span>
-                <span>⭐ 8.9/10</span>
-                <span>Tamil (Original)</span>
-            </div>
-            <button class="btn-play" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')">▶ Watch Now</button>
+        <div>
+            <div class="hero-title">GOAT - The Greatest Of All Time</div>
+            <button class="hero-btn" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')">▶ Play Now</button>
         </div>
     </div>
 
-    <!-- Row 1: Tamil Movies -->
-    <div class="section-title" id="tamil">🔥 Trending Tamil Movies (புதிய படங்கள்)</div>
+    <!-- Row 1: New Tamil Movies -->
+    <div class="section-title">🔥 Trending Tamil Movies (புதிய படங்கள்)</div>
     <div class="movie-row">
-        <div class="movie-card" tabindex="0" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')">
-            <img src="https://image.tmdb.org/t/p/w500/AQL4J2JzKx1wK2wX3V4v2.jpg" alt="Leo" onerror="this.src='https://via.placeholder.com/170x240/1f2833/ffffff?text=Leo'">
+        
+        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')">
+            <img src="https://image.tmdb.org/t/p/w500/b33nnKl1GSJbao4l3fZDDqsMx0F.jpg" alt="GOAT">
             <div class="movie-info">
-                <div class="movie-title">Leo (2024)</div>
-                <div class="movie-sub">Tamil • 1080p HD</div>
-            </div>
-        </div>
-        <div class="movie-card" tabindex="0" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')">
-            <img src="https://via.placeholder.com/170x240/1f2833/00d2ff?text=The+GOAT" alt="The GOAT">
-            <div class="movie-info">
-                <div class="movie-title">The GOAT</div>
+                <div class="movie-title">The GOAT (2024)</div>
                 <div class="movie-sub">Tamil • 4K HDR</div>
             </div>
         </div>
-        <div class="movie-card" tabindex="0" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4')">
-            <img src="https://via.placeholder.com/170x240/1f2833/e50914?text=Amaran" alt="Amaran">
+
+        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')">
+            <img src="https://image.tmdb.org/t/p/w500/pA34V3Y4Z3Yv2B6v6v2n2v2v2.jpg" onerror="this.src='https://m.media-amazon.com/images/M/MV5BMjA5MjYwMTEtNjBkYS00NTg4LWIxZTUtNjY3MGQ4M2Q1NDVjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'" alt="Amaran">
             <div class="movie-info">
-                <div class="movie-title">Amaran</div>
-                <div class="movie-sub">Tamil • HD</div>
+                <div class="movie-title">Amaran (2024)</div>
+                <div class="movie-sub">Tamil • 1080p HD</div>
             </div>
         </div>
+
+        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4')">
+            <img src="https://m.media-amazon.com/images/M/MV5BNGQxNDgzZWQtZTNjNi00M2NmLWExMTgtOTY4NjA4ZDcxN2Q5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'" alt="Maharaja">
+            <div class="movie-info">
+                <div class="movie-title">Maharaja</div>
+                <div class="movie-sub">Tamil • 1080p HD</div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Row 2: Tamil Dubbed Movies -->
-    <div class="section-title" id="dubbed">🎙️ Tamil Dubbed (Hollywood & Pan-India)</div>
+    <!-- Row 2: Tamil Dubbed -->
+    <div class="section-title">🎙️ Tamil Dubbed Movies</div>
     <div class="movie-row">
-        <div class="movie-card" tabindex="0" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')">
-            <img src="https://via.placeholder.com/170x240/1f2833/ffffff?text=Deadpool+Tamil" alt="Deadpool">
+
+        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')">
+            <img src="https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg" alt="Deadpool">
             <div class="movie-info">
                 <div class="movie-title">Deadpool & Wolverine</div>
-                <div class="movie-sub">Tamil Dub • 1080p</div>
-            </div>
-        </div>
-        <div class="movie-card" tabindex="0" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4')">
-            <img src="https://via.placeholder.com/170x240/1f2833/00d2ff?text=Pushpa+2+Tamil" alt="Pushpa 2">
-            <div class="movie-info">
-                <div class="movie-title">Pushpa 2</div>
                 <div class="movie-sub">Tamil Dub • 4K</div>
             </div>
         </div>
+
+        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4')">
+            <img src="https://m.media-amazon.com/images/M/MV5BNmU5OTQzYjctM2M0Ni00OTZkLWE1MjktMTJmNDYxYmU5NjY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="Kalki">
+            <div class="movie-info">
+                <div class="movie-title">Kalki 2898 AD</div>
+                <div class="movie-sub">Tamil Dub • 1080p</div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Video Player Modal -->
     <div class="modal" id="videoModal">
         <span class="close-btn" onclick="closeVideo()">&times;</span>
-        <video id="player" controls autoplay></video>
+        <video id="player" controls playsinline></video>
     </div>
 
     <script>
@@ -124,7 +114,7 @@
             const player = document.getElementById('player');
             player.src = url;
             modal.style.display = 'flex';
-            player.play();
+            player.play().catch(e => console.log(e));
         }
 
         function closeVideo() {
@@ -137,3 +127,4 @@
     </script>
 </body>
 </html>
+    
