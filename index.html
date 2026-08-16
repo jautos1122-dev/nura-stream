@@ -3,38 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nura TV Stream</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>NURA STREAM</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #0d0f12; color: #fff; padding-bottom: 60px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
         /* Navbar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(13, 15, 18, 0.95); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
-        .logo { font-size: 24px; font-weight: 800; color: #e50914; letter-spacing: 1.5px; }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #07090c; border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
 
-        /* Hero Banner */
-        .hero { position: relative; height: 260px; background: linear-gradient(180deg, rgba(0,0,0,0.2), #0d0f12), url('https://image.tmdb.org/t/p/original/b33nnKl1GSJbao4l3fZDDqsMx0F.jpg') center/cover no-repeat; display: flex; align-items: flex-end; padding: 20px; }
-        .hero-title { font-size: 26px; font-weight: 800; text-shadow: 2px 2px 10px rgba(0,0,0,0.9); }
-        .hero-btn { background: #00d2ff; color: #000; font-weight: 700; border: none; padding: 10px 22px; border-radius: 6px; margin-top: 10px; cursor: pointer; }
-
-        /* Sections */
-        .section-title { font-size: 18px; font-weight: 700; margin: 24px 20px 12px; color: #00d2ff; display: flex; align-items: center; gap: 8px; }
-        .movie-row { display: flex; gap: 14px; overflow-x: auto; padding: 0 20px 10px; scrollbar-width: none; }
+        /* Headings */
+        .section-title { font-size: 17px; font-weight: 700; margin: 24px 16px 12px; color: #00d2ff; display: flex; align-items: center; gap: 8px; }
+        
+        /* Movie Scroller */
+        .movie-row { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 10px; scrollbar-width: none; }
         .movie-row::-webkit-scrollbar { display: none; }
         
-        .movie-card { min-width: 140px; width: 140px; border-radius: 8px; overflow: hidden; background: #1a1e24; cursor: pointer; transition: transform 0.2s; border: 1px solid #2a313d; }
-        .movie-card:active, .movie-card:hover { transform: scale(1.05); border-color: #00d2ff; }
-        .movie-card img { width: 100%; height: 200px; object-fit: cover; background: #111; }
-        .movie-info { padding: 8px; }
-        .movie-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-sub { font-size: 11px; color: #00d2ff; margin-top: 2px; }
+        .movie-card { min-width: 145px; width: 145px; background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; }
+        .movie-card:active { transform: scale(0.96); }
+        .poster-box { width: 100%; height: 210px; background: #1a2332; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .poster-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .play-tag { position: absolute; bottom: 8px; right: 8px; background: rgba(0, 210, 255, 0.9); color: #000; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; }
+        
+        .movie-info { padding: 10px; }
+        .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .movie-sub { font-size: 11px; color: #00d2ff; margin-top: 4px; font-weight: 600; }
 
-        /* Video Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-        .modal video { width: 95%; max-width: 800px; border-radius: 8px; }
-        .close-btn { align-self: flex-end; margin-right: 5%; color: #fff; font-size: 32px; cursor: pointer; padding: 10px; }
+        /* Video Player Layer */
+        .player-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+        .player-container.active { display: flex; }
+        .video-box { width: 100%; max-width: 900px; background: #000; position: relative; }
+        video { width: 100%; height: auto; max-height: 80vh; display: block; }
+        
+        .close-bar { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #111; }
+        .playing-title { font-size: 15px; font-weight: bold; color: #00d2ff; }
+        .btn-close { background: #e50914; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -43,35 +48,40 @@
         <div class="logo">NURA <span>STREAM</span></div>
     </div>
 
-    <div class="hero">
-        <div>
-            <div class="hero-title">GOAT - The Greatest Of All Time</div>
-            <button class="hero-btn" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')">▶ Play Now</button>
-        </div>
-    </div>
-
-    <!-- Row 1: New Tamil Movies -->
+    <!-- Section 1: Tamil Movies -->
     <div class="section-title">🔥 Trending Tamil Movies (புதிய படங்கள்)</div>
     <div class="movie-row">
         
-        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')">
-            <img src="https://image.tmdb.org/t/p/w500/b33nnKl1GSJbao4l3fZDDqsMx0F.jpg" alt="GOAT">
+        <!-- Movie 1 -->
+        <div class="movie-card" onclick="startMovie('The GOAT (2024)', 'https://vjs.zencdn.net/v/oceans.mp4')">
+            <div class="poster-box">
+                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80" alt="GOAT">
+                <span class="play-tag">▶ 4K</span>
+            </div>
             <div class="movie-info">
                 <div class="movie-title">The GOAT (2024)</div>
                 <div class="movie-sub">Tamil • 4K HDR</div>
             </div>
         </div>
 
-        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')">
-            <img src="https://image.tmdb.org/t/p/w500/pA34V3Y4Z3Yv2B6v6v2n2v2v2.jpg" onerror="this.src='https://m.media-amazon.com/images/M/MV5BMjA5MjYwMTEtNjBkYS00NTg4LWIxZTUtNjY3MGQ4M2Q1NDVjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'" alt="Amaran">
+        <!-- Movie 2 -->
+        <div class="movie-card" onclick="startMovie('Amaran (2024)', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4')">
+            <div class="poster-box">
+                <img src="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=400&q=80" alt="Amaran">
+                <span class="play-tag">▶ 1080p</span>
+            </div>
             <div class="movie-info">
                 <div class="movie-title">Amaran (2024)</div>
                 <div class="movie-sub">Tamil • 1080p HD</div>
             </div>
         </div>
 
-        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4')">
-            <img src="https://m.media-amazon.com/images/M/MV5BNGQxNDgzZWQtZTNjNi00M2NmLWExMTgtOTY4NjA4ZDcxN2Q5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'" alt="Maharaja">
+        <!-- Movie 3 -->
+        <div class="movie-card" onclick="startMovie('Maharaja', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4')">
+            <div class="poster-box">
+                <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80" alt="Maharaja">
+                <span class="play-tag">▶ HD</span>
+            </div>
             <div class="movie-info">
                 <div class="movie-title">Maharaja</div>
                 <div class="movie-sub">Tamil • 1080p HD</div>
@@ -80,20 +90,28 @@
 
     </div>
 
-    <!-- Row 2: Tamil Dubbed -->
+    <!-- Section 2: Tamil Dubbed Movies -->
     <div class="section-title">🎙️ Tamil Dubbed Movies</div>
     <div class="movie-row">
 
-        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')">
-            <img src="https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg" alt="Deadpool">
+        <!-- Dubbed 1 -->
+        <div class="movie-card" onclick="startMovie('Deadpool & Wolverine', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4')">
+            <div class="poster-box">
+                <img src="https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=400&q=80" alt="Deadpool">
+                <span class="play-tag">▶ 4K</span>
+            </div>
             <div class="movie-info">
                 <div class="movie-title">Deadpool & Wolverine</div>
                 <div class="movie-sub">Tamil Dub • 4K</div>
             </div>
         </div>
 
-        <div class="movie-card" onclick="playVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4')">
-            <img src="https://m.media-amazon.com/images/M/MV5BNmU5OTQzYjctM2M0Ni00OTZkLWE1MjktMTJmNDYxYmU5NjY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="Kalki">
+        <!-- Dubbed 2 -->
+        <div class="movie-card" onclick="startMovie('Kalki 2898 AD', 'https://vjs.zencdn.net/v/oceans.mp4')">
+            <div class="poster-box">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Kalki">
+                <span class="play-tag">▶ 1080p</span>
+            </div>
             <div class="movie-info">
                 <div class="movie-title">Kalki 2898 AD</div>
                 <div class="movie-sub">Tamil Dub • 1080p</div>
@@ -102,29 +120,37 @@
 
     </div>
 
-    <!-- Video Player Modal -->
-    <div class="modal" id="videoModal">
-        <span class="close-btn" onclick="closeVideo()">&times;</span>
-        <video id="player" controls playsinline></video>
+    <!-- Dedicated Fullscreen Video Player -->
+    <div class="player-container" id="videoContainer">
+        <div class="close-bar">
+            <span class="playing-title" id="nowPlaying">Playing...</span>
+            <button class="btn-close" onclick="closeMovie()">✕ Close</button>
+        </div>
+        <div class="video-box">
+            <video id="mainVideo" controls playsinline preload="auto"></video>
+        </div>
     </div>
 
     <script>
-        function playVideo(url) {
-            const modal = document.getElementById('videoModal');
-            const player = document.getElementById('player');
-            player.src = url;
-            modal.style.display = 'flex';
-            player.play().catch(e => console.log(e));
+        const container = document.getElementById('videoContainer');
+        const video = document.getElementById('mainVideo');
+        const titleElem = document.getElementById('nowPlaying');
+
+        function startMovie(title, url) {
+            titleElem.innerText = "Now Playing: " + title;
+            video.src = url;
+            container.classList.add('active');
+            video.load();
+            video.play().catch(function(err) {
+                console.log("Autoplay blocked, user click required", err);
+            });
         }
 
-        function closeVideo() {
-            const modal = document.getElementById('videoModal');
-            const player = document.getElementById('player');
-            player.pause();
-            player.src = '';
-            modal.style.display = 'none';
+        function closeMovie() {
+            video.pause();
+            video.src = '';
+            container.classList.remove('active');
         }
     </script>
 </body>
 </html>
-    
