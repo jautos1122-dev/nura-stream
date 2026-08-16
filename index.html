@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NURA STREAM</title>
-    <!-- GunDB Realtime Cloud Sync (Zero Setup Instant Cloud) -->
-    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
@@ -13,7 +12,9 @@
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #07090c; border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
-        .add-btn { background: #00d2ff; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .nav-actions { display: flex; gap: 8px; }
+        .btn-nav { background: #00d2ff; color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .btn-sync { background: #22c55e; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
         .form-box { display: none; background: #131a24; padding: 18px; margin: 16px; border-radius: 10px; border: 1px solid #232d3d; }
         .form-box.active { display: block; }
@@ -34,61 +35,87 @@
         .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-stream { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; margin-top: 8px; cursor: pointer; border: none; }
 
-        /* TV & Web Player Modal */
-        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        /* Direct Fullscreen Player */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
         .player-modal.active { display: flex; }
-        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #111; border-bottom: 1px solid #222; }
-        .close-player { background: #e50914; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
-        iframe { width: 100%; height: 100%; border: none; flex: 1; }
+        .player-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #111; border-bottom: 1px solid #222; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        video { width: 100%; max-height: 85vh; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        #statusText { font-size: 14px; color: #00d2ff; padding: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="logo">NURA <span>STREAM</span></div>
-        <button class="add-btn" onclick="toggleForm()">➕ Add Movie</button>
+        <div class="nav-actions">
+            <button class="btn-sync" onclick="loadCloudMovies()">🔄 Refresh TV</button>
+            <button class="btn-nav" onclick="toggleForm()">➕ Add</button>
+        </div>
     </div>
 
     <!-- Movie Add Form -->
     <div class="form-box" id="movieForm">
-        <h3>🎬 புதிய படத்தை சேர்க்க (டிவியிலும் உடனே வந்துவிடும்)</h3>
+        <h3>🎬 புதிய படத்தை சேர்க்க</h3>
         <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: இதயம் முரளி, Leo, Amaran)" required>
         <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல்)">
-        <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
-        <button class="submit-btn" onclick="addNewMovie()">Save to TV & Mobile</button>
+        <input type="text" id="mLink" placeholder="TamilMV Video Link / Stream Link / Magnet Link" required>
+        <button class="submit-btn" onclick="addNewMovie()">Save & Sync (டிவியிலும் வரும்)</button>
     </div>
 
-    <div class="section-title">🍿 My Shared Cinema (டிவி & மொபைல்)</div>
+    <div class="section-title">🍿 My Movies (டிவி & மொபைல்)</div>
     <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 30px;">லோட் ஆகிறது... தயவுசெய்து காத்திருக்கவும்.</div>
+        <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 30px;">லோட் ஆகிறது...</div>
     </div>
 
-    <!-- TV Player Modal -->
+    <!-- Player Modal -->
     <div class="player-modal" id="playerModal">
         <div class="player-header">
             <span id="playingTitle" style="font-weight: bold; color: #00d2ff;">Playing...</span>
             <button class="close-player" onclick="closePlayer()">✕ Close</button>
         </div>
-        <iframe id="streamFrame" allowfullscreen></iframe>
+        <div class="player-body" id="videoBox">
+            <video id="htmlPlayer" controls playsinline style="display:none;"></video>
+            <iframe id="webFrame" allowfullscreen style="display:none;"></iframe>
+            <div id="statusText" style="display:none;">Connecting to TamilMV stream... Please wait.</div>
+        </div>
     </div>
 
     <script>
-        // Realtime Global Database Sync between Phone & TV
-        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
-        const moviesDB = gun.get('nura_stream_jautos_movies_v1');
-        let currentMovies = {};
+        let client = new WebTorrent();
+        const SYNC_URL = 'https://kvdb.io/K9QzF36T5nB7tqWj9k2XN9/nura_movies_list';
 
         function toggleForm() {
             document.getElementById('movieForm').classList.toggle('active');
         }
 
-        function addNewMovie() {
+        async function loadCloudMovies() {
+            const container = document.getElementById('movieContainer');
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 30px;">டிவி படங்களை லோட் செய்கிறது...</div>';
+            try {
+                const res = await fetch(SYNC_URL);
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('nura_movies', JSON.stringify(data));
+                    render(data);
+                    return;
+                }
+            } catch (e) {
+                console.log("Offline mode");
+            }
+            const saved = localStorage.getItem('nura_movies');
+            render(saved ? JSON.parse(saved) : []);
+        }
+
+        async function addNewMovie() {
             const name = document.getElementById('mName').value.trim();
             let poster = document.getElementById('mPoster').value.trim();
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் Magnet Link உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் லிங்க்கை உள்ளிடவும்!");
                 return;
             }
 
@@ -96,14 +123,22 @@
                 poster = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80";
             }
 
-            const id = 'm_' + Date.now();
-            moviesDB.get(id).put({
-                id: id,
-                name: name,
-                poster: poster,
-                link: link,
-                deleted: false
-            });
+            const saved = localStorage.getItem('nura_movies');
+            let movies = saved ? JSON.parse(saved) : [];
+            movies.unshift({ id: Date.now(), name: name, poster: poster, link: link });
+
+            localStorage.setItem('nura_movies', JSON.stringify(movies));
+            render(movies);
+
+            // Cloud Save for TV Sync
+            try {
+                await fetch(SYNC_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(movies)
+                });
+            } catch (err) {
+                console.log(err);
+            }
 
             document.getElementById('mName').value = '';
             document.getElementById('mPoster').value = '';
@@ -111,66 +146,106 @@
             toggleForm();
         }
 
-        function deleteMovie(id) {
-            if (confirm("இந்தப் படத்தை நீக்கவா? (டிவியிலும் நீங்கிவிடும்)")) {
-                moviesDB.get(id).put({ deleted: true });
+        async function deleteMovie(id) {
+            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
+                const saved = localStorage.getItem('nura_movies');
+                let movies = saved ? JSON.parse(saved) : [];
+                movies = movies.filter(m => m.id !== id);
+                localStorage.setItem('nura_movies', JSON.stringify(movies));
+                render(movies);
+
+                try {
+                    await fetch(SYNC_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(movies)
+                    });
+                } catch (err) {}
             }
         }
 
-        function openTVPlayer(title, magnetLink) {
+        function playMovie(title, link) {
             const modal = document.getElementById('playerModal');
-            const frame = document.getElementById('streamFrame');
+            const player = document.getElementById('htmlPlayer');
+            const frame = document.getElementById('webFrame');
+            const status = document.getElementById('statusText');
             const pTitle = document.getElementById('playingTitle');
 
             pTitle.innerText = "Playing: " + title;
-            frame.src = "https://instant.io/#" + encodeURIComponent(magnetLink);
             modal.classList.add('active');
+
+            // Reset view
+            player.style.display = 'none';
+            frame.style.display = 'none';
+            status.style.display = 'none';
+
+            if (link.startsWith('http://') || link.startsWith('https://')) {
+                // Online Video / Stream URL
+                if (link.includes('.mp4') || link.includes('.mkv') || link.includes('.webm') || link.includes('.m3u8')) {
+                    player.style.display = 'block';
+                    player.src = link;
+                    player.play().catch(e => console.log(e));
+                } else {
+                    frame.style.display = 'block';
+                    frame.src = link;
+                }
+            } else if (link.startsWith('magnet:')) {
+                status.style.display = 'block';
+                status.innerText = "Connecting to TamilMV stream... Please wait 10-15 seconds.";
+
+                client.add(link, function (torrent) {
+                    status.style.display = 'none';
+                    player.style.display = 'block';
+                    const file = torrent.files.find(f => f.name.endsWith('.mp4') || f.name.endsWith('.mkv') || f.name.endsWith('.webm'));
+                    if (file) {
+                        file.renderTo(player, { autoplay: true });
+                    }
+                });
+            }
         }
 
         function closePlayer() {
             const modal = document.getElementById('playerModal');
-            const frame = document.getElementById('streamFrame');
-            frame.src = "";
+            const player = document.getElementById('htmlPlayer');
+            const frame = document.getElementById('webFrame');
+            player.pause();
+            player.src = '';
+            frame.src = '';
+            
+            if (client) {
+                client.destroy();
+                client = new WebTorrent();
+            }
             modal.classList.remove('active');
         }
 
-        // Realtime Sync Listener: Triggered automatically on TV whenever Phone updates
-        moviesDB.map().on(function(data, id) {
-            if (!data) return;
-            if (data.deleted) {
-                delete currentMovies[id];
-            } else {
-                currentMovies[id] = data;
-            }
-            render();
-        });
-
-        function render() {
+        function render(movies) {
             const container = document.getElementById('movieContainer');
-            const list = Object.values(currentMovies);
             container.innerHTML = '';
 
-            if (list.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மொபைலில் "➕ Add Movie" மூலம் சேர்த்தால் உடனே டிவியில் தோன்றும்!</div>';
+            if (!movies || movies.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மொபைலில் "➕ Add" கொடுத்தால் டிவியிலும் உடனே வரும்!</div>';
                 return;
             }
 
-            list.reverse().forEach(m => {
+            movies.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
+                    <button class="delete-btn" onclick="deleteMovie(${m.id})">✕</button>
                     <div class="poster-box">
                         <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <button class="btn-stream" onclick="openTVPlayer('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Play Now</button>
+                        <button class="btn-stream" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Play Now</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
+
+        // Auto load on start
+        loadCloudMovies();
     </script>
 </body>
 </html>
