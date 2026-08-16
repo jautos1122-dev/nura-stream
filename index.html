@@ -3,192 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NURA STREAM</title>
+    <title>NURA STREAM - Personal OTT</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
         
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #07090c; border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
+        /* Netflix Style Header */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
-        .nav-actions { display: flex; gap: 8px; }
-        .btn-nav { background: #00d2ff; color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
-        .btn-sync { background: #22c55e; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .add-btn:hover { background: #ff1e2b; }
 
-        .form-box { display: none; background: #131a24; padding: 18px; margin: 16px; border-radius: 10px; border: 1px solid #232d3d; }
-        .form-box.active { display: block; }
-        .form-box h3 { margin-bottom: 14px; color: #00d2ff; font-size: 16px; }
-        .form-box input { width: 100%; padding: 12px; margin-bottom: 12px; background: #0b0e14; border: 1px solid #2a3547; color: #fff; border-radius: 6px; font-size: 14px; outline: none; }
-        .form-box .submit-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        /* Add Movie Form Modal */
+        .form-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .form-modal.active { display: flex; }
+        .form-box { background: #131a24; width: 100%; max-width: 480px; padding: 24px; border-radius: 12px; border: 1px solid #232d3d; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .form-box h3 { margin-bottom: 16px; color: #00d2ff; font-size: 18px; }
+        .form-box input { width: 100%; padding: 12px; margin-bottom: 14px; background: #0b0e14; border: 1px solid #2a3547; color: #fff; border-radius: 8px; font-size: 14px; outline: none; }
+        .form-box .submit-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
+        .form-box .cancel-btn { width: 100%; background: transparent; color: #aaa; border: 1px solid #333; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        .section-title { font-size: 17px; font-weight: 700; margin: 20px 16px 12px; color: #00d2ff; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; padding: 0 16px; }
+        /* Movie Row */
+        .section-title { font-size: 19px; font-weight: 700; margin: 24px 24px 14px; color: #ffffff; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding: 0 24px; }
         
-        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; }
-        .poster-box { width: 100%; height: 200px; background: #1a2332; position: relative; }
+        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; cursor: pointer; transition: transform 0.25s, border-color 0.25s; }
+        .movie-card:hover { transform: scale(1.04); border-color: #00d2ff; }
+        .poster-box { width: 100%; height: 230px; background: #1a2332; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .delete-btn { position: absolute; top: 6px; right: 6px; background: rgba(229, 9, 20, 0.85); color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; font-size: 13px; cursor: pointer; z-index: 10; }
+        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); color: #ff4444; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
         
-        .movie-info { padding: 8px 10px; }
-        .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .btn-mx { background: #0084ff; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; display: block; border: none; cursor: pointer; }
-        .btn-vlc { background: #ff7700; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 6px 0; border-radius: 6px; display: block; }
+        .movie-info { padding: 12px; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .movie-badge { display: inline-block; font-size: 10px; font-weight: 800; color: #00d2ff; background: rgba(0,210,255,0.1); padding: 3px 6px; border-radius: 4px; margin-top: 6px; }
+
+        /* Fullscreen OTT Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #07090c; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        video { width: 100%; height: 100%; max-height: 85vh; outline: none; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="logo">NURA <span>STREAM</span></div>
-        <div class="nav-actions">
-            <button class="btn-sync" onclick="loadSharedMovies()">🔄 Sync TV</button>
-            <button class="btn-nav" onclick="toggleForm()">➕ Add</button>
+        <button class="add-btn" onclick="openForm()">➕ Add Movie</button>
+    </div>
+
+    <!-- Movie Add Form Modal -->
+    <div class="form-modal" id="formModal">
+        <div class="form-box">
+            <h3>🎬 புதிய படம் சேர்க்க (டிவியிலும் உடனே வந்துவிடும்)</h3>
+            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
+            <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல் - பெயர் போட்டால் தானாக வரும்)">
+            <input type="text" id="mLink" placeholder="TamilMV Video Link / Stream Link (MP4/HLS/Embed)" required>
+            <button class="submit-btn" onclick="saveToCloud()">Save Movie (Publish)</button>
+            <button class="cancel-btn" onclick="closeForm()">Cancel</button>
         </div>
     </div>
 
-    <!-- Movie Add Form -->
-    <div class="form-box" id="movieForm">
-        <h3>🎬 புதிய படத்தை சேர்க்க (டிவி & மொபைல்)</h3>
-        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
-        <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல்)">
-        <input type="text" id="mLink" placeholder="TamilMV Video / Stream / Magnet Link" required>
-        <button class="submit-btn" onclick="addNewMovie()">Save & Sync to TV</button>
+    <div class="section-title">🔥 Latest Movies (புதிய படங்கள்)</div>
+    <div class="movie-grid" id="movieContainer">
+        <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
 
-    <div class="section-title">🍿 My Movies (MX Player / VLC)</div>
-    <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 30px;">படங்கள் லோட் ஆகிறது...</div>
+    <!-- Fullscreen Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Playing Movie...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <div class="player-body" id="videoBox">
+            <video id="htmlPlayer" controls autoplay playsinline style="display:none;"></video>
+            <iframe id="webFrame" allowfullscreen allow="autoplay" style="display:none;"></iframe>
+        </div>
     </div>
 
     <script>
-        const CLOUD_STORAGE = "https://api.npoint.io/46985dfc1d044f56fce2";
+        // Connected to your Firebase Cloud DB
+        const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
 
-        function toggleForm() {
-            document.getElementById('movieForm').classList.toggle('active');
-        }
+        function openForm() { document.getElementById('formModal').classList.add('active'); }
+        function closeForm() { document.getElementById('formModal').classList.remove('active'); }
 
-        async function loadSharedMovies() {
-            const container = document.getElementById('movieContainer');
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 30px;">டிவி படங்களை சிங்க் செய்கிறது...</div>';
-            
+        async function fetchAutoPoster(title) {
             try {
-                const res = await fetch(CLOUD_STORAGE);
-                if (res.ok) {
-                    const list = await res.json();
-                    if (Array.isArray(list)) {
-                        localStorage.setItem('nura_movies_final', JSON.stringify(list));
-                        render(list);
-                        return;
-                    }
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(title)}&media=movie&limit=1`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    return data.results[0].artworkUrl100.replace('100x100bb', '600x900bb');
                 }
-            } catch (e) {
-                console.log("Using Local DB");
-            }
-
-            const saved = localStorage.getItem('nura_movies_final');
-            render(saved ? JSON.parse(saved) : []);
+            } catch(e) {}
+            return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80";
         }
 
-        async function addNewMovie() {
+        async function loadMovies() {
+            try {
+                const res = await fetch(`${FIREBASE_DB_URL}/movies.json`);
+                const data = await res.json();
+                render(data);
+            } catch (err) {
+                console.log("Error loading movies:", err);
+            }
+        }
+
+        async function saveToCloud() {
             const name = document.getElementById('mName').value.trim();
             let poster = document.getElementById('mPoster').value.trim();
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் Link உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் ஸ்ட்ரீம் லிங்க் உள்ளிடவும்!");
                 return;
             }
 
             if (!poster) {
-                poster = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80";
+                poster = await fetchAutoPoster(name);
             }
 
-            const saved = localStorage.getItem('nura_movies_final');
-            let movies = saved ? JSON.parse(saved) : [];
-            movies.unshift({ id: Date.now(), name: name, poster: poster, link: link });
+            const movieId = 'm_' + Date.now();
+            const movieData = { id: movieId, name, poster, link, date: Date.now() };
 
-            localStorage.setItem('nura_movies_final', JSON.stringify(movies));
-            render(movies);
-
-            // Sync to Cloud for TV
-            try {
-                await fetch(CLOUD_STORAGE, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(movies)
-                });
-            } catch (err) {
-                console.log(err);
-            }
+            await fetch(`${FIREBASE_DB_URL}/movies/${movieId}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(movieData)
+            });
 
             document.getElementById('mName').value = '';
             document.getElementById('mPoster').value = '';
             document.getElementById('mLink').value = '';
-            toggleForm();
+            closeForm();
+            loadMovies();
         }
 
         async function deleteMovie(id) {
-            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
-                const saved = localStorage.getItem('nura_movies_final');
-                let movies = saved ? JSON.parse(saved) : [];
-                movies = movies.filter(m => m.id !== id);
-                localStorage.setItem('nura_movies_final', JSON.stringify(movies));
-                render(movies);
-
-                try {
-                    await fetch(CLOUD_STORAGE, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(movies)
-                    });
-                } catch (err) {}
+            if (confirm("இந்தப் படத்தை தளத்தில் இருந்து நீக்கவா?")) {
+                await fetch(`${FIREBASE_DB_URL}/movies/${id}.json`, { method: 'DELETE' });
+                loadMovies();
             }
         }
 
-        function playInMX(link) {
-            // Opens directly in MX Player on Android / Android TV
-            if (link.startsWith('http://') || link.startsWith('https://')) {
-                window.location.href = `intent:${link}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end`;
+        function playMovie(title, link) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            const frame = document.getElementById('webFrame');
+            const pTitle = document.getElementById('playingTitle');
+
+            pTitle.innerText = "Playing: " + title;
+            modal.classList.add('active');
+
+            player.style.display = 'none';
+            frame.style.display = 'none';
+
+            if (link.includes('.mp4') || link.includes('.m3u8') || link.includes('.webm')) {
+                player.style.display = 'block';
+                player.src = link;
+                player.play();
             } else {
-                // Magnet / Torrent Links
-                window.location.href = link;
+                frame.style.display = 'block';
+                frame.src = link;
             }
         }
 
-        function render(movies) {
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('htmlPlayer');
+            const frame = document.getElementById('webFrame');
+            player.pause();
+            player.src = '';
+            frame.src = '';
+            modal.classList.remove('active');
+        }
+
+        function render(data) {
             const container = document.getElementById('movieContainer');
             container.innerHTML = '';
 
-            if (!movies || movies.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மொபைலில் "➕ Add" கொடுத்தால் டிவியிலும் உடனே வரும்!</div>';
+            if (!data) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
                 return;
             }
 
-            movies.forEach(m => {
-                const vlcUrl = m.link.startsWith('magnet:') ? m.link : "vlc://" + m.link;
+            const list = Object.values(data).sort((a,b) => (b.date || 0) - (a.date || 0));
 
+            list.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
+                card.onclick = () => playMovie(m.name, m.link);
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteMovie(${m.id})">✕</button>
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteMovie('${m.id}')">✕</button>
                     <div class="poster-box">
                         <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <button class="btn-mx" onclick="playInMX('${m.link.replace(/'/g, "\\'")}')">▶ Play in MX Player</button>
-                            <a class="btn-vlc" href="${vlcUrl}">VLC Player</a>
-                        </div>
+                        <div class="movie-badge">4K ULTRA HD • TAMIL</div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        loadSharedMovies();
+        // Live Auto Load on Start
+        loadMovies();
     </script>
 </body>
 </html>
