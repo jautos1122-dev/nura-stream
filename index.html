@@ -33,9 +33,9 @@
         .movie-info { padding: 8px 10px; }
         .movie-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
         
-        .btn-group { display: flex; gap: 6px; }
-        .btn-vlc { flex: 1; background: #ff7700; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; display: block; }
-        .btn-magnet { flex: 1; background: #00d2ff; color: #000; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; display: block; }
+        .btn-group { display: flex; flex-direction: column; gap: 6px; }
+        .btn-mx { background: #0084ff; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; display: block; border: none; cursor: pointer; }
+        .btn-vlc { background: #ff7700; color: #fff; text-align: center; text-decoration: none; font-size: 12px; font-weight: bold; padding: 6px 0; border-radius: 6px; display: block; }
     </style>
 </head>
 <body>
@@ -51,20 +51,19 @@
     <!-- Movie Add Form -->
     <div class="form-box" id="movieForm">
         <h3>🎬 புதிய படத்தை சேர்க்க (டிவி & மொபைல்)</h3>
-        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, இதயம் முரளி)" required>
+        <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
         <input type="text" id="mPoster" placeholder="போஸ்டர் இமேஜ் லிங்க் (ஆப்ஷனல்)">
-        <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
+        <input type="text" id="mLink" placeholder="TamilMV Video / Stream / Magnet Link" required>
         <button class="submit-btn" onclick="addNewMovie()">Save & Sync to TV</button>
     </div>
 
-    <div class="section-title">🍿 My Movies (VLC / Direct Play)</div>
+    <div class="section-title">🍿 My Movies (MX Player / VLC)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 30px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
 
     <script>
-        const API_KEY = "$2a$10$7ZkQx7Y7v6u1wL8s0m0Dce"; // Public sync bucket
-        const BIN_URL = "https://api.jsonbin.io/v3/b/66d03d3ce41b4d34e42718e8";
+        const CLOUD_STORAGE = "https://api.npoint.io/46985dfc1d044f56fce2";
 
         function toggleForm() {
             document.getElementById('movieForm').classList.toggle('active');
@@ -75,21 +74,20 @@
             container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 30px;">டிவி படங்களை சிங்க் செய்கிறது...</div>';
             
             try {
-                const res = await fetch(BIN_URL + "/latest", {
-                    headers: { 'X-Master-Key': '$2a$10$i1y7v3e1v8n1w7z9u8x2Zeo7c8s2y9m1k2XN9' }
-                });
+                const res = await fetch(CLOUD_STORAGE);
                 if (res.ok) {
-                    const result = await res.json();
-                    const list = result.record || [];
-                    localStorage.setItem('nura_movies_v2', JSON.stringify(list));
-                    render(list);
-                    return;
+                    const list = await res.json();
+                    if (Array.isArray(list)) {
+                        localStorage.setItem('nura_movies_final', JSON.stringify(list));
+                        render(list);
+                        return;
+                    }
                 }
             } catch (e) {
-                console.log("Using Local Storage");
+                console.log("Using Local DB");
             }
 
-            const saved = localStorage.getItem('nura_movies_v2');
+            const saved = localStorage.getItem('nura_movies_final');
             render(saved ? JSON.parse(saved) : []);
         }
 
@@ -99,7 +97,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் Magnet Link உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் Link உள்ளிடவும்!");
                 return;
             }
 
@@ -107,21 +105,18 @@
                 poster = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80";
             }
 
-            const saved = localStorage.getItem('nura_movies_v2');
+            const saved = localStorage.getItem('nura_movies_final');
             let movies = saved ? JSON.parse(saved) : [];
             movies.unshift({ id: Date.now(), name: name, poster: poster, link: link });
 
-            localStorage.setItem('nura_movies_v2', JSON.stringify(movies));
+            localStorage.setItem('nura_movies_final', JSON.stringify(movies));
             render(movies);
 
-            // Sync to Cloud
+            // Sync to Cloud for TV
             try {
-                await fetch(BIN_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': '$2a$10$i1y7v3e1v8n1w7z9u8x2Zeo7c8s2y9m1k2XN9'
-                    },
+                await fetch(CLOUD_STORAGE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(movies)
                 });
             } catch (err) {
@@ -136,22 +131,29 @@
 
         async function deleteMovie(id) {
             if (confirm("இந்தப் படத்தை நீக்கவா?")) {
-                const saved = localStorage.getItem('nura_movies_v2');
+                const saved = localStorage.getItem('nura_movies_final');
                 let movies = saved ? JSON.parse(saved) : [];
                 movies = movies.filter(m => m.id !== id);
-                localStorage.setItem('nura_movies_v2', JSON.stringify(movies));
+                localStorage.setItem('nura_movies_final', JSON.stringify(movies));
                 render(movies);
 
                 try {
-                    await fetch(BIN_URL, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': '$2a$10$i1y7v3e1v8n1w7z9u8x2Zeo7c8s2y9m1k2XN9'
-                        },
+                    await fetch(CLOUD_STORAGE, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(movies)
                     });
                 } catch (err) {}
+            }
+        }
+
+        function playInMX(link) {
+            // Opens directly in MX Player on Android / Android TV
+            if (link.startsWith('http://') || link.startsWith('https://')) {
+                window.location.href = `intent:${link}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end`;
+            } else {
+                // Magnet / Torrent Links
+                window.location.href = link;
             }
         }
 
@@ -160,13 +162,12 @@
             container.innerHTML = '';
 
             if (!movies || movies.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மேலே உள்ள "➕ Add" தொட்டு உண்மையான TamilMV Magnet Link சேர்த்து பார்க்கவும்.</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 10px;">படங்கள் எதுவும் இல்லை. மொபைலில் "➕ Add" கொடுத்தால் டிவியிலும் உடனே வரும்!</div>';
                 return;
             }
 
             movies.forEach(m => {
-                const vlcUrl = "vlc://" + m.link;
-                const magnetUrl = m.link;
+                const vlcUrl = m.link.startsWith('magnet:') ? m.link : "vlc://" + m.link;
 
                 const card = document.createElement('div');
                 card.className = 'movie-card';
@@ -178,8 +179,8 @@
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
                         <div class="btn-group">
-                            <a class="btn-vlc" href="${vlcUrl}">VLC Play</a>
-                            <a class="btn-magnet" href="${magnetUrl}">Magnet</a>
+                            <button class="btn-mx" onclick="playInMX('${m.link.replace(/'/g, "\\'")}')">▶ Play in MX Player</button>
+                            <a class="btn-vlc" href="${vlcUrl}">VLC Player</a>
                         </div>
                     </div>
                 `;
