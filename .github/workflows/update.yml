@@ -1,0 +1,34 @@
+name: Nura Auto Movie Scraper
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # ஒவ்வொரு 6 மணி நேரத்திற்கும் தானாக இயங்கும்
+  workflow_dispatch: # நாமே தேவைப்படும்போது மேனுவலாக இயக்க
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run Scraper
+        run: |
+          python scraper.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "Nura-Bot"
+          git config --global user.email "bot@nura.stream"
+          git add movies.json
+          git commit -m "Auto Update: New Movies Added [$(date)]" || exit 0
+          git push
