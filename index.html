@@ -8,39 +8,44 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
         
-        /* Navbar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
+        /* Netflix Style Header */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
         .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
-        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .add-btn:hover { background: #ff1e2b; }
 
-        /* Form Modal */
+        /* Add Movie Form Modal */
         .form-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
         .form-modal.active { display: flex; }
-        .form-box { background: #131a24; width: 100%; max-width: 480px; padding: 24px; border-radius: 12px; border: 1px solid #232d3d; }
+        .form-box { background: #131a24; width: 100%; max-width: 480px; padding: 24px; border-radius: 12px; border: 1px solid #232d3d; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .form-box h3 { margin-bottom: 16px; color: #00d2ff; font-size: 18px; }
         .form-box input { width: 100%; padding: 12px; margin-bottom: 14px; background: #0b0e14; border: 1px solid #2a3547; color: #fff; border-radius: 8px; font-size: 14px; outline: none; }
         .form-box .submit-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
         .form-box .cancel-btn { width: 100%; background: transparent; color: #aaa; border: 1px solid #333; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* Movie Grid */
+        /* Movie Row */
         .section-title { font-size: 19px; font-weight: 700; margin: 24px 24px 14px; color: #ffffff; }
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding: 0 24px; }
         
-        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; }
-        .poster-box { width: 100%; height: 220px; background: #1a2332; position: relative; }
+        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; cursor: pointer; transition: transform 0.25s; }
+        .movie-card:hover { transform: scale(1.04); border-color: #00d2ff; }
+        .poster-box { width: 100%; height: 230px; background: #1a2332; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); color: #ff4444; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 10; }
+        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); color: #ff4444; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
         
         .movie-info { padding: 12px; }
-        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; margin-bottom: 10px; }
-        
-        /* Action Buttons */
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .btn-mx { background: #0084ff; color: #fff; text-align: center; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; text-decoration: none; display: block; border: none; cursor: pointer; }
-        .btn-vlc { background: #ff7700; color: #fff; text-align: center; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; text-decoration: none; display: block; border: none; cursor: pointer; }
-        .btn-all { background: #22c55e; color: #fff; text-align: center; font-size: 11px; font-weight: bold; padding: 6px 0; border-radius: 6px; text-decoration: none; display: block; border: none; cursor: pointer; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+        .movie-badge { display: inline-block; font-size: 10px; font-weight: 800; color: #00d2ff; background: rgba(0,210,255,0.1); padding: 3px 6px; border-radius: 4px; margin-top: 6px; }
+
+        /* Fullscreen OTT Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #07090c; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
@@ -50,21 +55,32 @@
         <button class="add-btn" onclick="openForm()">➕ Add Movie</button>
     </div>
 
-    <!-- Form Modal -->
+    <!-- Movie Add Form Modal -->
     <div class="form-modal" id="formModal">
         <div class="form-box">
             <h3>🎬 புதிய படம் சேர்க்க (டிவியிலும் உடனே வரும்)</h3>
             <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran, GOAT)" required>
-            <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="TamilMV Video / Magnet Link" required>
-            <button class="submit-btn" onclick="saveToCloud()">Save Movie</button>
+            <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல் - பெயர் போட்டாலே வரும்)">
+            <input type="text" id="mLink" placeholder="TamilMV Watch Online / Stream லிங்க்" required>
+            <button class="submit-btn" onclick="saveToCloud()">Save Movie (Publish)</button>
             <button class="cancel-btn" onclick="closeForm()">Cancel</button>
         </div>
     </div>
 
-    <div class="section-title">🍿 My Movies (MX / VLC Player)</div>
+    <div class="section-title">🔥 Latest Movies (புதிய படங்கள்)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் லோட் ஆகிறது...</div>
+    </div>
+
+    <!-- Fullscreen Player Modal -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Playing Movie...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <div class="player-body">
+            <iframe id="webFrame" allowfullscreen allow="autoplay"></iframe>
+        </div>
     </div>
 
     <script>
@@ -100,7 +116,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் லிங்க் உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் Stream லிங்க் உள்ளிடவும்!");
                 return;
             }
 
@@ -125,25 +141,27 @@
         }
 
         async function deleteMovie(id) {
-            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
+            if (confirm("இந்தப் படத்தை தளத்தில் இருந்து நீக்கவா?")) {
                 await fetch(`${FIREBASE_DB_URL}/movies/${id}.json`, { method: 'DELETE' });
                 loadMovies();
             }
         }
 
-        function playInMX(link) {
-            // Android Direct Intent for MX Player
-            window.location.href = `intent:${link}#Intent;package=com.mxtech.videoplayer.ad;action=android.intent.action.VIEW;end;`;
+        function playMovie(title, link) {
+            const modal = document.getElementById('playerModal');
+            const frame = document.getElementById('webFrame');
+            const pTitle = document.getElementById('playingTitle');
+
+            pTitle.innerText = "Playing: " + title;
+            frame.src = link;
+            modal.classList.add('active');
         }
 
-        function playInVLC(link) {
-            // Android Direct Intent for VLC Player
-            window.location.href = `vlc://${link}`;
-        }
-
-        function playInChooser(link) {
-            // Open Android System Chooser (Show all video players)
-            window.location.href = link;
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const frame = document.getElementById('webFrame');
+            frame.src = '';
+            modal.classList.remove('active');
         }
 
         function render(data) {
@@ -151,7 +169,7 @@
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் சேர்க்கவும்!</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
                 return;
             }
 
@@ -160,18 +178,15 @@
             list.forEach(m => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
+                card.onclick = () => playMovie(m.name, m.link);
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteMovie('${m.id}')">✕</button>
                     <div class="poster-box">
                         <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <button class="btn-mx" onclick="playInMX('${m.link.replace(/'/g, "\\'")}')">▶ MX Player</button>
-                            <button class="btn-vlc" onclick="playInVLC('${m.link.replace(/'/g, "\\'")}')">▶ VLC Player</button>
-                            <button class="btn-all" onclick="playInChooser('${m.link.replace(/'/g, "\\'")}')">⚡ Open in Any App</button>
-                        </div>
+                        <div class="movie-badge">4K ULTRA HD • TAMIL</div>
                     </div>
                 `;
                 container.appendChild(card);
