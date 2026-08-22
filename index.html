@@ -6,13 +6,13 @@
     <title>NURA STREAM - Personal OTT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif; }
-        body { background: #07090e; color: #fff; padding-bottom: 90px; overflow-x: hidden; }
+        body { background: #07090e; color: #fff; padding-bottom: 90px; }
 
         /* Top Bar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: rgba(7, 9, 14, 0.95); border-bottom: 1px solid #161f2e; position: sticky; top: 0; z-index: 100; }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: rgba(7, 9, 14, 0.95); border-bottom: 1px solid #161f2e; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); }
         .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
-        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
@@ -32,15 +32,13 @@
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
 
         .badge-4k { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.8); color: #00d2ff; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; border: 1px solid #00d2ff; }
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.8); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; }
+        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.8); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
 
         .movie-info { padding: 12px; }
-        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .play-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 9px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
+        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 11px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
         .play-btn:hover { background: #ff1e2b; }
-        .copy-btn { width: 100%; background: #1c2637; color: #00d2ff; border: 1px solid #28374d; padding: 6px 0; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -62,7 +60,7 @@
         </div>
     </div>
 
-    <div class="section-title">🔥 My Movies (TorrServer / MX Player)</div>
+    <div class="section-title">🔥 My Movies (1-Click OTT Play)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
@@ -132,19 +130,6 @@
             }
         }
 
-        function triggerDirectPlay(magnetLink) {
-            // Send Native Magnet Intent to Android System (Opens TorrServe / Torrent Player immediately)
-            window.location.href = magnetLink;
-        }
-
-        function copyMagnet(magnetLink) {
-            navigator.clipboard.writeText(magnetLink).then(() => {
-                alert("Magnet Link Copied! TorrServe ஆப்பில் சென்று + ADD-ல் Paste செய்யவும்.");
-            }).catch(() => {
-                prompt("Copy this link:", magnetLink);
-            });
-        }
-
         function render(data) {
             const container = document.getElementById('movieContainer');
             container.innerHTML = '';
@@ -158,6 +143,9 @@
 
             list.forEach(m => {
                 const magnet = m.link.trim();
+                // Direct top-level navigation to TorrServer stream (Bypasses all HTTPS security blocks)
+                const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(magnet)}&play=1`;
+
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
@@ -168,10 +156,7 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <button class="play-btn" onclick="triggerDirectPlay('${magnet.replace(/'/g, "\\'")}')">⚡ Play in TorrServe / App</button>
-                            <button class="copy-btn" onclick="copyMagnet('${magnet.replace(/'/g, "\\'")}')">📋 Copy Magnet Link</button>
-                        </div>
+                        <a class="play-btn" href="${streamUrl}" target="_blank">▶ Watch Movie (4K)</a>
                     </div>
                 `;
                 container.appendChild(card);
