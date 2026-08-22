@@ -8,8 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
         
-        /* Netflix Style Header */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
         .logo span { color: #00d2ff; }
         .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
@@ -28,7 +27,7 @@
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding: 0 24px; }
         
         .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; }
-        .poster-box { width: 100%; height: 220px; background: #1a2332; position: relative; }
+        .poster-box { width: 100%; height: 230px; background: #1a2332; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); color: #ff4444; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 10; }
@@ -36,11 +35,16 @@
         .movie-info { padding: 12px; }
         .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; margin-bottom: 10px; }
         
-        /* Direct Anchor TV Buttons */
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .btn-mx { background: #0084ff; color: #fff; text-align: center; font-size: 12px; font-weight: bold; padding: 9px 0; border-radius: 6px; text-decoration: none; display: block; }
-        .btn-vlc { background: #ff7700; color: #fff; text-align: center; font-size: 12px; font-weight: bold; padding: 8px 0; border-radius: 6px; text-decoration: none; display: block; }
-        .btn-direct { background: #22c55e; color: #fff; text-align: center; font-size: 11px; font-weight: bold; padding: 7px 0; border-radius: 6px; text-decoration: none; display: block; }
+        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; cursor: pointer; border: none; }
+        .play-btn:hover { background: #ff1e2b; }
+
+        /* Direct Player Modal */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #07090c; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        video { width: 100%; height: 100%; max-height: 85vh; outline: none; }
     </style>
 </head>
 <body>
@@ -53,18 +57,29 @@
     <!-- Form Modal -->
     <div class="form-modal" id="formModal">
         <div class="form-box">
-            <h3>🎬 புதிய படம் சேர்க்க (டிவியிலும் உடனே வரும்)</h3>
-            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, Amaran)" required>
+            <h3>🎬 புதிய படம் சேர்க்க</h3>
+            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, GOAT, Amaran)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="TamilMV Video Link / Magnet Link" required>
+            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
             <button class="submit-btn" onclick="saveToCloud()">Save Movie</button>
             <button class="cancel-btn" onclick="closeForm()">Cancel</button>
         </div>
     </div>
 
-    <div class="section-title">🍿 My Movies (MX / VLC Direct OTT)</div>
+    <div class="section-title">🔥 Movies Ready to Stream (TorrServer OTT)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் லோட் ஆகிறது...</div>
+    </div>
+
+    <!-- Direct HTML5 TV Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Connecting TorrServer...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <div class="player-body">
+            <video id="tvPlayer" controls autoplay playsinline></video>
+        </div>
     </div>
 
     <script>
@@ -100,7 +115,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் லிங்க் உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் Magnet Link உள்ளிடவும்!");
                 return;
             }
 
@@ -131,33 +146,40 @@
             }
         }
 
+        function playMovie(title, magnetLink) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('tvPlayer');
+            const pTitle = document.getElementById('playingTitle');
+
+            pTitle.innerText = "Streaming: " + title;
+            modal.classList.add('active');
+
+            // Convert Magnet to direct Local TorrServer HTTP Stream
+            const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(magnetLink)}&play=1`;
+            player.src = streamUrl;
+            player.play().catch(e => console.log("Stream play triggered"));
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('tvPlayer');
+            player.pause();
+            player.src = '';
+            modal.classList.remove('active');
+        }
+
         function render(data) {
             const container = document.getElementById('movieContainer');
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் சேர்க்கவும்!</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
                 return;
             }
 
             const list = Object.values(data).sort((a,b) => (b.date || 0) - (a.date || 0));
 
             list.forEach(m => {
-                const link = m.link.trim();
-                
-                // Pure Native Android Intent URIs for TV & Phone
-                let mxIntent = "";
-                let vlcIntent = "";
-                let directIntent = link;
-
-                if (link.startsWith('magnet:')) {
-                    mxIntent = `intent:${link}#Intent;action=android.intent.action.VIEW;end;`;
-                    vlcIntent = `vlc://${link}`;
-                } else {
-                    mxIntent = `intent:${link}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;action=android.intent.action.VIEW;end;`;
-                    vlcIntent = `intent:${link}#Intent;package=org.videolan.vlc;type=video/*;action=android.intent.action.VIEW;end;`;
-                }
-
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
@@ -167,11 +189,7 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <a class="btn-mx" href="${mxIntent}">▶ Play in MX Player</a>
-                            <a class="btn-vlc" href="${vlcIntent}">▶ Play in VLC Player</a>
-                            <a class="btn-direct" href="${directIntent}">⚡ Play in Any Video App</a>
-                        </div>
+                        <button class="play-btn" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Watch Movie (4K)</button>
                     </div>
                 `;
                 container.appendChild(card);
