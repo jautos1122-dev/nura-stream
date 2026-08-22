@@ -3,100 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NURA STREAM - Personal OTT</title>
+    <title>NURA STREAM - Premium OTT</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #0b0e14; color: #ffffff; padding-bottom: 80px; }
-        
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(7, 9, 12, 0.95); border-bottom: 1px solid #1a2230; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #07090e; color: #fff; padding-bottom: 90px; overflow-x: hidden; }
+
+        /* Netflix / Prime Top Bar */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; background: rgba(7, 9, 14, 0.95); border-bottom: 1px solid #161f2e; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); }
+        .logo { font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: 2px; text-transform: uppercase; }
         .logo span { color: #00d2ff; }
-        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .nav-right { display: flex; gap: 12px; align-items: center; }
+        .add-btn { background: linear-gradient(135deg, #e50914, #b80610); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(229,9,20,0.35); transition: 0.2s; }
+        .add-btn:hover { transform: scale(1.03); }
 
-        /* Form Modal */
-        .form-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
-        .form-modal.active { display: flex; }
-        .form-box { background: #131a24; width: 100%; max-width: 480px; padding: 24px; border-radius: 12px; border: 1px solid #232d3d; }
-        .form-box h3 { margin-bottom: 16px; color: #00d2ff; font-size: 18px; }
-        .form-box input { width: 100%; padding: 12px; margin-bottom: 14px; background: #0b0e14; border: 1px solid #2a3547; color: #fff; border-radius: 8px; font-size: 14px; outline: none; }
-        .form-box .submit-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
-        .form-box .cancel-btn { width: 100%; background: transparent; color: #aaa; border: 1px solid #333; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* Hero Banner */
+        .hero { margin: 20px 24px; padding: 36px 28px; border-radius: 16px; background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover; border: 1px solid #1f2b3e; }
+        .hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        .hero p { color: #a0aec0; font-size: 14px; max-width: 500px; }
 
-        /* Movie Row */
-        .section-title { font-size: 19px; font-weight: 700; margin: 24px 24px 14px; color: #ffffff; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding: 0 24px; }
+        /* Modal Add Movie */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .modal.active { display: flex; }
+        .modal-box { background: #111722; width: 100%; max-width: 480px; padding: 26px; border-radius: 14px; border: 1px solid #233044; box-shadow: 0 20px 50px rgba(0,0,0,0.9); }
+        .modal-box h3 { margin-bottom: 16px; color: #00d2ff; font-size: 18px; }
+        .modal-box input { width: 100%; padding: 12px; margin-bottom: 14px; background: #080c13; border: 1px solid #253347; color: #fff; border-radius: 8px; font-size: 14px; outline: none; }
+        .modal-box input:focus { border-color: #00d2ff; }
+        .modal-box .save-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
+        .modal-box .cancel-btn { width: 100%; background: transparent; color: #888; border: 1px solid #253347; padding: 10px; border-radius: 8px; cursor: pointer; }
+
+        /* Movie Row / Grid */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 28px 24px 16px; }
+        .section-title { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; padding: 0 24px; }
+
+        .movie-card { background: #111722; border-radius: 12px; overflow: hidden; border: 1px solid #1c2637; position: relative; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .movie-card:hover { transform: translateY(-6px) scale(1.02); border-color: #00d2ff; box-shadow: 0 10px 25px rgba(0,210,255,0.2); }
+        .poster-box { width: 100%; height: 245px; background: #162030; position: relative; overflow: hidden; }
+        .poster-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .movie-card:hover .poster-box img { transform: scale(1.05); }
+
+        .badge-4k { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.75); color: #00d2ff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; border: 1px solid #00d2ff; backdrop-filter: blur(5px); }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.75); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+
+        .movie-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
+        .movie-meta { font-size: 11px; color: #8899a6; display: flex; justify-content: space-between; margin-bottom: 12px; }
         
-        .movie-card { background: #131a24; border-radius: 10px; overflow: hidden; border: 1px solid #232d3d; position: relative; }
-        .poster-box { width: 100%; height: 230px; background: #1a2332; position: relative; }
-        .poster-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.75); color: #ff4444; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 10; }
-        
-        .movie-info { padding: 12px; }
-        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; margin-bottom: 10px; }
-        
-        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; font-size: 13px; font-weight: bold; padding: 10px 0; border-radius: 6px; cursor: pointer; border: none; }
+        .play-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 9px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .play-btn:hover { background: #ff1e2b; }
 
-        /* Direct Player Modal */
+        /* Fullscreen OTT Web Player */
         .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
         .player-modal.active { display: flex; }
-        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #07090c; border-bottom: 1px solid #1a2230; }
-        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
-        video { width: 100%; height: 100%; max-height: 85vh; outline: none; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #0a0e14; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        video { width: 100%; height: 100%; max-height: 88vh; outline: none; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
         <div class="logo">NURA <span>STREAM</span></div>
-        <button class="add-btn" onclick="openForm()">➕ Add Movie</button>
-    </div>
-
-    <!-- Form Modal -->
-    <div class="form-modal" id="formModal">
-        <div class="form-box">
-            <h3>🎬 புதிய படம் சேர்க்க</h3>
-            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Leo, GOAT, Amaran)" required>
-            <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
-            <button class="submit-btn" onclick="saveToCloud()">Save Movie</button>
-            <button class="cancel-btn" onclick="closeForm()">Cancel</button>
+        <div class="nav-right">
+            <button class="add-btn" onclick="openModal()">➕ Add Movie</button>
         </div>
     </div>
 
-    <div class="section-title">🔥 Movies Ready to Stream (TorrServer OTT)</div>
-    <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் லோட் ஆகிறது...</div>
+    <div class="hero">
+        <h1>Welcome to Nura Stream</h1>
+        <p>உங்கள் சொந்த 4K OTT தளம். TamilMV டோரண்ட் படங்கள் நேரடியாக தியேட்டர் தரத்தில் பஃபரிங் இல்லாமல் உடனே ஓடும்.</p>
     </div>
 
-    <!-- Direct HTML5 TV Player -->
+    <!-- Modal Form -->
+    <div class="modal" id="addModal">
+        <div class="modal-box">
+            <h3>🎬 புதிய படம் சேர்க்க</h3>
+            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan, Leo, GOAT)" required>
+            <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (பெயர் போட்டால் தானாக வந்துவிடும்)">
+            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
+            <button class="save-btn" onclick="saveMovie()">Save to OTT Library</button>
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <div class="section-title">🔥 Trending Tamil Movies</div>
+    </div>
+    <div class="movie-grid" id="movieContainer">
+        <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
+    </div>
+
+    <!-- Fullscreen Player -->
     <div class="player-modal" id="playerModal">
         <div class="player-header">
-            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Connecting TorrServer...</span>
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff; font-size: 16px;">Streaming 4K Movie...</span>
             <button class="close-player" onclick="closePlayer()">✕ Close</button>
         </div>
         <div class="player-body">
-            <video id="tvPlayer" controls autoplay playsinline></video>
+            <video id="ottVideoPlayer" controls autoplay playsinline></video>
         </div>
     </div>
 
     <script>
         const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
 
-        function openForm() { document.getElementById('formModal').classList.add('active'); }
-        function closeForm() { document.getElementById('formModal').classList.remove('active'); }
+        function openModal() { document.getElementById('addModal').classList.add('active'); }
+        function closeModal() { document.getElementById('addModal').classList.remove('active'); }
 
         async function fetchAutoPoster(title) {
             try {
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(title)}&media=movie&limit=1`);
+                const cleanTitle = title.replace(/\(.*?\)/g, '').trim();
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanTitle)}&media=movie&limit=1`);
                 const data = await res.json();
                 if (data.results && data.results.length > 0) {
                     return data.results[0].artworkUrl100.replace('100x100bb', '600x900bb');
                 }
             } catch(e) {}
-            return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80";
+            return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80";
         }
 
         async function loadMovies() {
@@ -109,7 +133,7 @@
             }
         }
 
-        async function saveToCloud() {
+        async function saveMovie() {
             const name = document.getElementById('mName').value.trim();
             let poster = document.getElementById('mPoster').value.trim();
             const link = document.getElementById('mLink').value.trim();
@@ -135,34 +159,33 @@
             document.getElementById('mName').value = '';
             document.getElementById('mPoster').value = '';
             document.getElementById('mLink').value = '';
-            closeForm();
+            closeModal();
             loadMovies();
         }
 
         async function deleteMovie(id) {
-            if (confirm("இந்தப் படத்தை நீக்கவா?")) {
+            if (confirm("இந்தப் படத்தை தளத்தில் இருந்து நீக்கவா?")) {
                 await fetch(`${FIREBASE_DB_URL}/movies/${id}.json`, { method: 'DELETE' });
                 loadMovies();
             }
         }
 
         function playMovie(title, magnetLink) {
+            const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(magnetLink)}&play=1`;
+            
             const modal = document.getElementById('playerModal');
-            const player = document.getElementById('tvPlayer');
+            const player = document.getElementById('ottVideoPlayer');
             const pTitle = document.getElementById('playingTitle');
 
-            pTitle.innerText = "Streaming: " + title;
-            modal.classList.add('active');
-
-            // Convert Magnet to direct Local TorrServer HTTP Stream
-            const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(magnetLink)}&play=1`;
+            pTitle.innerText = "Playing: " + title;
             player.src = streamUrl;
-            player.play().catch(e => console.log("Stream play triggered"));
+            modal.classList.add('active');
+            player.play().catch(e => console.log("Stream trigger"));
         }
 
         function closePlayer() {
             const modal = document.getElementById('playerModal');
-            const player = document.getElementById('tvPlayer');
+            const player = document.getElementById('ottVideoPlayer');
             player.pause();
             player.src = '';
             modal.classList.remove('active');
@@ -173,7 +196,7 @@
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px;">படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
                 return;
             }
 
@@ -183,13 +206,18 @@
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
-                    <div class="poster-box">
-                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80'">
+                    <div class="poster-box" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">
+                        <span class="badge-4k">4K UHD</span>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteMovie('${m.id}')">✕</button>
+                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <button class="play-btn" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Watch Movie (4K)</button>
+                        <div class="movie-meta">
+                            <span>Tamil • Movie</span>
+                            <span style="color:#00d2ff;">★ 9.8</span>
+                        </div>
+                        <button class="play-btn" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Watch Now</button>
                     </div>
                 `;
                 container.appendChild(card);
