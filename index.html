@@ -37,8 +37,10 @@
         .movie-info { padding: 12px; }
         .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
 
-        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 11px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
-        .play-btn:hover { background: #ff1e2b; }
+        .btn-group { display: flex; flex-direction: column; gap: 6px; }
+        .btn-app { width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 9px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; display: block; }
+        .btn-app:hover { background: #ff1e2b; }
+        .btn-browser { width: 100%; background: #1c2637; color: #00d2ff; text-align: center; text-decoration: none; padding: 7px 0; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #28374d; display: block; }
     </style>
 </head>
 <body>
@@ -60,7 +62,7 @@
         </div>
     </div>
 
-    <div class="section-title">🔥 My Movies (1-Click OTT Play)</div>
+    <div class="section-title">🔥 My Movies (All Format Player)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
@@ -143,8 +145,11 @@
 
             list.forEach(m => {
                 const magnet = m.link.trim();
-                // Direct top-level navigation to TorrServer stream (Bypasses all HTTPS security blocks)
                 const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(magnet)}&play=1`;
+                
+                // Android Intent to open natively in VLC or MX Player (Bypasses HEVC / MKV browser codec issues)
+                const vlcIntent = `vlc://${streamUrl.replace('http://', '')}`;
+                const directAppIntent = `intent:${streamUrl}#Intent;type=video/*;action=android.intent.action.VIEW;end;`;
 
                 const card = document.createElement('div');
                 card.className = 'movie-card';
@@ -156,7 +161,10 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <a class="play-btn" href="${streamUrl}" target="_blank">▶ Watch Movie (4K)</a>
+                        <div class="btn-group">
+                            <a class="btn-app" href="${directAppIntent}">▶ Play in MX / VLC Player</a>
+                            <a class="btn-browser" href="${streamUrl}" target="_blank">🌐 Play in Browser</a>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
