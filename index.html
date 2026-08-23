@@ -37,8 +37,10 @@
         .movie-info { padding: 12px; }
         .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
 
-        .play-btn { display: block; width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 12px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
+        .btn-group { display: flex; flex-direction: column; gap: 6px; }
+        .play-btn { width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
         .play-btn:hover { background: #ff1e2b; }
+        .sub-btn { width: 100%; background: #1c2637; color: #00d2ff; text-align: center; text-decoration: none; padding: 7px 0; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #28374d; }
     </style>
 </head>
 <body>
@@ -60,7 +62,7 @@
         </div>
     </div>
 
-    <div class="section-title">🔥 Movies (TV & Mobile 4K Direct Stream)</div>
+    <div class="section-title">🔥 Movies</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
@@ -130,6 +132,23 @@
             }
         }
 
+        // Bypass Mixed-Content browser security using dynamic form navigation
+        function launchStream(streamUrl) {
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = streamUrl;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function copyLink(streamUrl) {
+            navigator.clipboard.writeText(streamUrl).then(() => {
+                alert("Stream URL Copied! VLC/MX Player-ல் 'Open Network Stream'-ல் கொடுத்து பார்க்கலாம்.");
+            }).catch(() => {
+                prompt("Copy this URL:", streamUrl);
+            });
+        }
+
         function render(data) {
             const container = document.getElementById('movieContainer');
             container.innerHTML = '';
@@ -143,7 +162,6 @@
 
             list.forEach(m => {
                 const link = m.link.trim();
-                // Clean Direct HTTP Stream for TV (No Intent schemes)
                 const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(link)}&play=1`;
 
                 const card = document.createElement('div');
@@ -156,7 +174,10 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <a class="play-btn" href="${streamUrl}">▶ Watch Movie (4K)</a>
+                        <div class="btn-group">
+                            <button class="play-btn" onclick="launchStream('${streamUrl}')">▶ Play 4K Movie</button>
+                            <button class="sub-btn" onclick="copyLink('${streamUrl}')">📋 Copy Stream URL</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
