@@ -51,7 +51,7 @@
     <div class="navbar">
         <div class="logo">
             NURA <span>STREAM</span>
-            <span class="ver-badge">🟢 STREMIO v3.0</span>
+            <span class="ver-badge">🟢 STREMIO v3.1</span>
         </div>
         <button class="add-btn" onclick="openModal()">➕ Add Stremio Movie</button>
     </div>
@@ -59,7 +59,7 @@
     <!-- Modal -->
     <div class="modal" id="addModal">
         <div class="modal-box">
-            <h3>🎬 படம் சேர்க்க (Stremio Magnet Link)</h3>
+            <h3>🎬 படம் சேர்க்க (Magnet Link)</h3>
             <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Pyaar Prema)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
             <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
@@ -68,11 +68,10 @@
         </div>
     </div>
 
-    <div class="section-title">🔥 Movies List (Stremio 1-Click Launch)</div>
+    <div class="section-title">🔥 Movies List (Stremio Synced)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
-            🚀 <b>Stremio OTT Ready!</b><br><br>
-            <span style="color: #888; font-size: 13px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Stremio Movie" மூலம் TamilMV Magnet Link-ஐ சேர்க்கவும்!</span>
+            🚀 <b>Stremio OTT Ready!</b>
         </div>
     </div>
 
@@ -141,10 +140,16 @@
             }
         }
 
-        // 1-Click Stremio Launcher
+        // Safe launch without white error screen
         function openInStremio(magnetLink) {
             const cleanMagnet = magnetLink.trim();
-            window.location.href = cleanMagnet;
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = cleanMagnet;
+            document.body.appendChild(iframe);
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 2000);
         }
 
         function copyMagnet(magnetLink) {
@@ -163,7 +168,7 @@
                 container.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
                         🚀 <b>Stremio OTT Ready!</b><br><br>
-                        <span style="color: #888; font-size: 13px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Stremio Movie" மூலம் TamilMV Magnet Link-ஐ சேர்க்கவும்!</span>
+                        <span style="color: #888; font-size: 13px;">படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Stremio Movie" மூலம் புதிய Magnet Link-ஐ சேர்க்கவும்!</span>
                     </div>
                 `;
                 return;
