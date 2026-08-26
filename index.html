@@ -57,16 +57,16 @@
     <!-- Modal -->
     <div class="modal" id="addModal">
         <div class="modal-box">
-            <h3>🎬 புதிய படம் சேர்க்க</h3>
+            <h3>🎬 புதிய படம் சேர்க்க (Seedr / Direct MP4)</h3>
             <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="Seedr Stream Link / Video URL (https://...)" required>
+            <input type="text" id="mLink" placeholder="Seedr Direct Stream Link (https://...)" required>
             <button class="save-btn" onclick="saveMovie()">Save Movie</button>
             <button class="cancel-btn" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
-    <div class="section-title">🔥 My Movies</div>
+    <div class="section-title">🔥 My Movies (Direct Cloud OTT)</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
@@ -116,7 +116,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் வீடியோ லிங்க் உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் Seedr வீடியோ லிங்க் உள்ளிடவும்!");
                 return;
             }
 
@@ -169,7 +169,7 @@
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் எதுவும் இல்லை. "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் எதுவும் இல்லை. "➕ Add Movie" மூலம் Seedr லிங்கை சேர்க்கவும்!</div>';
                 return;
             }
 
