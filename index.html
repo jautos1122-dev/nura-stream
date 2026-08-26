@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NURA STREAM - Personal OTT</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; }
         body { background: #07090e; color: #fff; padding-bottom: 90px; }
 
         /* Top Bar */
@@ -23,11 +23,11 @@
         .modal-box .save-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; }
         .modal-box .cancel-btn { width: 100%; background: transparent; color: #888; border: 1px solid #253347; padding: 10px; border-radius: 8px; cursor: pointer; }
 
-        /* Movies */
+        /* Movie Grid */
         .section-title { font-size: 18px; font-weight: 800; margin: 20px 20px 14px; }
         .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 16px; padding: 0 20px; }
 
-        .movie-card { background: #111722; border-radius: 12px; overflow: hidden; border: 1px solid #1c2637; position: relative; }
+        .movie-card { background: #111722; border-radius: 12px; overflow: hidden; border: 1px solid #1c2637; position: relative; cursor: pointer; }
         .poster-box { width: 100%; height: 220px; background: #162030; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -35,12 +35,16 @@
         .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.8); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
 
         .movie-info { padding: 12px; }
-        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
+        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+        .play-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .play-btn { width: 100%; background: #e50914; color: #fff; text-align: center; text-decoration: none; padding: 10px 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
-        .play-btn:hover { background: #ff1e2b; }
-        .sub-btn { width: 100%; background: #1c2637; color: #00d2ff; text-align: center; text-decoration: none; padding: 7px 0; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #28374d; }
+        /* Fullscreen Video Player */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; flex-direction: column; }
+        .player-modal.active { display: flex; }
+        .player-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #0a0e14; border-bottom: 1px solid #1a2230; }
+        .close-player { background: #e50914; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .player-body { width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        video { width: 100%; height: 100%; max-height: 90vh; outline: none; }
     </style>
 </head>
 <body>
@@ -56,15 +60,26 @@
             <h3>🎬 புதிய படம் சேர்க்க</h3>
             <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
+            <input type="text" id="mLink" placeholder="Seedr Stream Link / Video URL (https://...)" required>
             <button class="save-btn" onclick="saveMovie()">Save Movie</button>
             <button class="cancel-btn" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
-    <div class="section-title">🔥 Movies</div>
+    <div class="section-title">🔥 My Movies</div>
     <div class="movie-grid" id="movieContainer">
         <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
+    </div>
+
+    <!-- Built-in OTT Player -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span id="playingTitle" style="font-weight: bold; color: #00d2ff;">Streaming Movie...</span>
+            <button class="close-player" onclick="closePlayer()">✕ Close</button>
+        </div>
+        <div class="player-body">
+            <video id="videoPlayer" controls autoplay playsinline></video>
+        </div>
     </div>
 
     <script>
@@ -101,7 +116,7 @@
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
-                alert("படத்தின் பெயர் மற்றும் Magnet Link உள்ளிடவும்!");
+                alert("படத்தின் பெயர் மற்றும் வீடியோ லிங்க் உள்ளிடவும்!");
                 return;
             }
 
@@ -132,21 +147,21 @@
             }
         }
 
-        // Bypass Mixed-Content browser security using dynamic form navigation
-        function launchStream(streamUrl) {
-            const form = document.createElement('form');
-            form.method = 'GET';
-            form.action = streamUrl;
-            document.body.appendChild(form);
-            form.submit();
+        function playMovie(title, url) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('videoPlayer');
+            document.getElementById('playingTitle').innerText = "Playing: " + title;
+            player.src = url;
+            modal.classList.add('active');
+            player.play().catch(e => console.log(e));
         }
 
-        function copyLink(streamUrl) {
-            navigator.clipboard.writeText(streamUrl).then(() => {
-                alert("Stream URL Copied! VLC/MX Player-ல் 'Open Network Stream'-ல் கொடுத்து பார்க்கலாம்.");
-            }).catch(() => {
-                prompt("Copy this URL:", streamUrl);
-            });
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('videoPlayer');
+            player.pause();
+            player.src = '';
+            modal.classList.remove('active');
         }
 
         function render(data) {
@@ -154,30 +169,24 @@
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">இன்னும் படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் எதுவும் இல்லை. "➕ Add Movie" மூலம் புதிய படத்தை சேர்க்கவும்!</div>';
                 return;
             }
 
             const list = Object.values(data).sort((a,b) => (b.date || 0) - (a.date || 0));
 
             list.forEach(m => {
-                const link = m.link.trim();
-                const streamUrl = `http://127.0.0.1:8090/stream?link=${encodeURIComponent(link)}&play=1`;
-
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
-                    <div class="poster-box">
-                        <span class="badge-4k">4K UHD</span>
-                        <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
+                    <div class="poster-box" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">
+                        <span class="badge-4k">HD / 4K</span>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteMovie('${m.id}')">✕</button>
                         <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <button class="play-btn" onclick="launchStream('${streamUrl}')">▶ Play 4K Movie</button>
-                            <button class="sub-btn" onclick="copyLink('${streamUrl}')">📋 Copy Stream URL</button>
-                        </div>
+                        <button class="play-btn" onclick="playMovie('${m.name.replace(/'/g, "\\'")}', '${m.link.replace(/'/g, "\\'")}')">▶ Watch Now</button>
                     </div>
                 `;
                 container.appendChild(card);
