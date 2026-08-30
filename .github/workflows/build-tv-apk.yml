@@ -22,41 +22,41 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Generate Android TV Project
+      - name: Install SDK Components & Accept Licenses
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Create TV Project Files
         run: |
           mkdir -p app/src/main/java/com/nura/stream
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/drawable
 
           cat << 'EOF' > settings.gradle
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
           rootProject.name = "NuraStream"
           include ':app'
           EOF
 
           cat << 'EOF' > build.gradle
-          plugins {
-              id 'com.android.application' version '8.1.4' apply false
+          buildscript {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:8.1.4'
+              }
+          }
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
           }
           EOF
 
           cat << 'EOF' > app/build.gradle
-          plugins {
-              id 'com.android.application'
-          }
+          apply plugin: 'com.android.application'
 
           android {
               namespace 'com.nura.stream'
@@ -82,6 +82,12 @@ jobs:
           }
           EOF
 
+          cat << 'EOF' > app/src/main/res/values/styles.xml
+          <resources>
+              <style name="Theme.Leanback" parent="@android:style/Theme.NoTitleBar.Fullscreen" />
+          </resources>
+          EOF
+
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -93,7 +99,7 @@ jobs:
                   android:allowBackup="true"
                   android:label="NURA STREAMING"
                   android:supportsRtl="true"
-                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:theme="@style/Theme.Leanback"
                   android:banner="@android:drawable/sym_def_app_icon">
                   <activity
                       android:name=".MainActivity"
@@ -166,8 +172,10 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
 
-      - name: Build with Gradle
+      - name: Build Android TV APK
         run: gradle assembleDebug
 
       - name: Upload TV APK
