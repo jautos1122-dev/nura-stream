@@ -2,46 +2,66 @@ name: Build Android TV APK
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-tv-apk.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Setup Android Project
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Generate Android TV Project
         run: |
           mkdir -p app/src/main/java/com/nura/stream
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/res/drawable
 
           cat << 'EOF' > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
           rootProject.name = "NuraStream"
           include ':app'
           EOF
 
           cat << 'EOF' > build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
-          }
-          allprojects {
-              repositories { google(); mavenCentral() }
+          plugins {
+              id 'com.android.application' version '8.1.4' apply false
           }
           EOF
 
           cat << 'EOF' > app/build.gradle
-          apply plugin: 'com.android.application'
+          plugins {
+              id 'com.android.application'
+          }
+
           android {
               namespace 'com.nura.stream'
               compileSdk 34
+
               defaultConfig {
                   applicationId "com.nura.stream.tv"
                   minSdk 21
@@ -49,10 +69,15 @@ jobs:
                   versionCode 1
                   versionName "1.0"
               }
+
               buildTypes {
                   release {
                       minifyEnabled false
                   }
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
               }
           }
           EOF
@@ -139,10 +164,13 @@ jobs:
           }
           EOF
 
-      - name: Build APK with Gradle
-        run: gradle wrapper && ./gradlew assembleDebug
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Upload APK
+      - name: Build with Gradle
+        run: gradle assembleDebug
+
+      - name: Upload TV APK
         uses: actions/upload-artifact@v4
         with:
           name: NURA-STREAMING-TV-APK
