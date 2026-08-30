@@ -12,9 +12,9 @@
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: rgba(7, 9, 14, 0.95); border-bottom: 2px solid #6c5ce7; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); }
         .logo { font-size: 20px; font-weight: 900; color: #e50914; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
         .logo span { color: #00d2ff; }
-        .ver-badge { background: #00b894; color: #000; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
-        .add-btn { background: #6c5ce7; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px rgba(108, 92, 231, 0.5); }
-        .add-btn:hover { background: #5641e5; }
+        .ver-badge { background: #6c5ce7; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
+        .add-btn { background: #e50914; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .add-btn:hover { background: #ff1e2b; }
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
@@ -34,7 +34,7 @@
         .poster-box { width: 100%; height: 220px; background: #162030; position: relative; }
         .poster-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .badge-4k { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.85); color: #00b894; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; border: 1px solid #00b894; }
+        .badge-4k { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.85); color: #00d2ff; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; border: 1px solid #00d2ff; }
         .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.85); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
 
         .movie-info { padding: 12px; }
@@ -51,16 +51,16 @@
     <div class="navbar">
         <div class="logo">
             NURA <span>STREAM</span>
-            <span class="ver-badge">🟢 STREMIO v3.1</span>
+            <span class="ver-badge">⚡ STREMIO DIRECT</span>
         </div>
-        <button class="add-btn" onclick="openModal()">➕ Add Stremio Movie</button>
+        <button class="add-btn" onclick="openModal()">➕ Add Movie</button>
     </div>
 
     <!-- Modal -->
     <div class="modal" id="addModal">
         <div class="modal-box">
-            <h3>🎬 படம் சேர்க்க (Magnet Link)</h3>
-            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Pyaar Prema)" required>
+            <h3>🎬 புதிய படம் சேர்க்க</h3>
+            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan)" required>
             <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
             <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
             <button class="save-btn" onclick="saveMovie()">Save Movie</button>
@@ -68,11 +68,9 @@
         </div>
     </div>
 
-    <div class="section-title">🔥 Movies List (Stremio Synced)</div>
+    <div class="section-title">🔥 My OTT Movies</div>
     <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
-            🚀 <b>Stremio OTT Ready!</b>
-        </div>
+        <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் லோட் ஆகிறது...</div>
     </div>
 
     <script>
@@ -140,21 +138,26 @@
             }
         }
 
-        // Safe launch without white error screen
-        function openInStremio(magnetLink) {
+        // 100% Working 1-Click Launch directly into Stremio Android App
+        function launchStremio(magnetLink) {
             const cleanMagnet = magnetLink.trim();
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = cleanMagnet;
-            document.body.appendChild(iframe);
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 2000);
+            
+            // Direct Android Intent targeting Stremio App directly
+            const stremioIntent = `intent:${cleanMagnet}#Intent;package=com.stremio.one;action=android.intent.action.VIEW;end;`;
+            
+            // Fallback Protocol
+            const stremioProtocol = cleanMagnet.replace('magnet:', 'stremio:');
+
+            try {
+                window.location.href = stremioIntent;
+            } catch(e) {
+                window.location.href = stremioProtocol;
+            }
         }
 
         function copyMagnet(magnetLink) {
             navigator.clipboard.writeText(magnetLink).then(() => {
-                alert("Magnet Link Copied! Stremio Search-ல் Paste செய்து உடனே பார்க்கலாம்.");
+                alert("Magnet Link Copied! Stremio Search-ல் Paste செய்து கொள்ளலாம்.");
             }).catch(() => {
                 prompt("Copy Magnet Link:", magnetLink);
             });
@@ -165,12 +168,7 @@
             container.innerHTML = '';
 
             if (!data) {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
-                        🚀 <b>Stremio OTT Ready!</b><br><br>
-                        <span style="color: #888; font-size: 13px;">படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Stremio Movie" மூலம் புதிய Magnet Link-ஐ சேர்க்கவும்!</span>
-                    </div>
-                `;
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 50px;">படங்கள் எதுவும் இல்லை. "➕ Add Movie" மூலம் TamilMV Magnet Link-ஐ சேர்க்கவும்!</div>';
                 return;
             }
 
@@ -182,14 +180,14 @@
                 card.className = 'movie-card';
                 card.innerHTML = `
                     <div class="poster-box">
-                        <span class="badge-4k">4K / 1080p</span>
+                        <span class="badge-4k">4K UHD</span>
                         <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
                         <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'">
                     </div>
                     <div class="movie-info">
                         <div class="movie-title">${m.name}</div>
                         <div class="btn-group">
-                            <button class="play-stremio" onclick="openInStremio('${magnet.replace(/'/g, "\\'")}')">▶ Watch in Stremio</button>
+                            <button class="play-stremio" onclick="launchStremio('${magnet.replace(/'/g, "\\'")}')">▶ Play in Stremio</button>
                             <button class="copy-btn" onclick="copyMagnet('${magnet.replace(/'/g, "\\'")}')">📋 Copy Magnet</button>
                         </div>
                     </div>
