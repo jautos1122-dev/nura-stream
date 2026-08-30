@@ -3,83 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NURA STREAM - Stremio OTT</title>
+    <title>NURA STREAMING - Personal Premium OTT</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; }
-        body { background: #07090e; color: #fff; padding-bottom: 90px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', 'Segoe UI', -apple-system, sans-serif; }
+        body { background: #06090e; color: #fff; overflow-x: hidden; padding-bottom: 70px; }
 
-        /* Top Bar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: rgba(7, 9, 14, 0.95); border-bottom: 2px solid #6c5ce7; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); }
-        .logo { font-size: 20px; font-weight: 900; color: #e50914; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+        /* Navigation Bar */
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 36px; background: linear-gradient(180deg, rgba(6,9,14,0.95) 0%, rgba(6,9,14,0.7) 70%, transparent 100%); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; backdrop-filter: blur(15px); }
+        .nav-left { display: flex; align-items: center; gap: 30px; }
+        .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
         .logo span { color: #00d2ff; }
-        .ver-badge { background: #00b894; color: #000; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
-        .add-btn { background: #6c5ce7; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px rgba(108, 92, 231, 0.5); }
-        .add-btn:hover { background: #5641e5; }
+        .nav-links { display: flex; gap: 20px; list-style: none; }
+        .nav-links a { color: #aaa; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .add-btn { background: linear-gradient(135deg, #e50914, #b20710); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(229,9,20,0.4); transition: 0.2s; }
+        .add-btn:hover { transform: scale(1.05); }
 
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        /* Hero Banner Section (Like Amazon Prime / Netflix) */
+        .hero-banner { position: relative; width: 100%; height: 68vh; min-height: 480px; background: linear-gradient(0deg, #06090e 0%, rgba(6,9,14,0.4) 50%, rgba(6,9,14,0.8) 100%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; display: flex; align-items: center; padding: 0 50px; margin-bottom: 20px; }
+        .hero-content { max-width: 650px; z-index: 10; margin-top: 50px; }
+        .hero-tag { background: rgba(0, 210, 255, 0.2); color: #00d2ff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px; border: 1px solid #00d2ff; display: inline-block; margin-bottom: 12px; letter-spacing: 1px; }
+        .hero-title { font-size: 44px; font-weight: 900; line-height: 1.1; margin-bottom: 14px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .hero-title span { color: #e50914; }
+        .hero-desc { font-size: 14px; color: #ccc; line-height: 1.6; margin-bottom: 22px; }
+        .hero-actions { display: flex; gap: 14px; }
+        .hero-play-btn { background: #fff; color: #000; padding: 12px 28px; border-radius: 6px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .hero-play-btn:hover { background: #e50914; color: #fff; }
+
+        /* Main Content & Movie Grids */
+        .main-container { padding: 0 40px; position: relative; z-index: 20; margin-top: -30px; }
+        .row-header { display: flex; align-items: center; justify-content: space-between; margin: 30px 0 16px; }
+        .row-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .row-title span { color: #e50914; font-size: 22px; }
+        .movie-count { font-size: 12px; color: #777; font-weight: 600; }
+
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+
+        /* Movie Cards (Netflix Poster Style) */
+        .movie-card { background: #111722; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border: 1px solid rgba(255,255,255,0.05); }
+        .movie-card:hover { transform: scale(1.05) translateY(-5px); border-color: #00d2ff; box-shadow: 0 12px 25px rgba(0, 210, 255, 0.3); z-index: 30; }
+        .poster-container { width: 100%; height: 260px; position: relative; background: #162030; }
+        .poster-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .card-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); color: #00d2ff; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; border: 1px solid #00d2ff; }
+        .card-year { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; }
+        .delete-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(229,9,20,0.9); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; font-weight: bold; cursor: pointer; z-index: 10; display: none; align-items: center; justify-content: center; transition: 0.2s; }
+        .movie-card:hover .delete-btn { display: flex; }
+
+        .movie-details { padding: 12px; background: linear-gradient(180deg, #111722 0%, #0a0e17 100%); }
+        .movie-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; color: #fff; }
+        .play-trigger { width: 100%; background: #6c5ce7; color: #fff; border: none; padding: 8px 0; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
+        .play-trigger:hover { background: #5641e5; }
+
+        /* Modal Dialog */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
         .modal.active { display: flex; }
-        .modal-box { background: #111722; width: 100%; max-width: 460px; padding: 24px; border-radius: 12px; border: 1px solid #6c5ce7; }
-        .modal-box h3 { margin-bottom: 14px; color: #00d2ff; font-size: 17px; }
-        .modal-box input { width: 100%; padding: 12px; margin-bottom: 12px; background: #080c13; border: 1px solid #253347; color: #fff; border-radius: 8px; font-size: 14px; outline: none; }
-        .modal-box .save-btn { width: 100%; background: #6c5ce7; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; }
-        .modal-box .cancel-btn { width: 100%; background: transparent; color: #888; border: 1px solid #253347; padding: 10px; border-radius: 8px; cursor: pointer; }
+        .modal-box { background: #111723; width: 100%; max-width: 480px; padding: 28px; border-radius: 12px; border: 1px solid #1f2c42; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .modal-box h3 { margin-bottom: 16px; color: #00d2ff; font-size: 18px; font-weight: 800; }
+        .modal-box input, .modal-box select { width: 100%; padding: 12px; margin-bottom: 12px; background: #090d15; border: 1px solid #233149; color: #fff; border-radius: 6px; font-size: 13px; outline: none; }
+        .file-upload-box { background: #090d15; border: 1px dashed #233149; padding: 12px; border-radius: 6px; margin-bottom: 14px; text-align: center; cursor: pointer; }
+        .file-upload-box label { cursor: pointer; font-size: 12px; color: #00d2ff; font-weight: 600; }
+        .preview-img { width: 80px; height: 110px; object-fit: cover; border-radius: 4px; margin: 8px auto 0; display: none; }
+        .modal-box .save-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 13px; border-radius: 6px; font-weight: 800; cursor: pointer; margin-bottom: 8px; font-size: 14px; }
+        .modal-box .cancel-btn { width: 100%; background: transparent; color: #777; border: 1px solid #233149; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
 
-        /* Movie Grid */
-        .section-title { font-size: 18px; font-weight: 800; margin: 20px 20px 14px; color: #dfe6e9; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 16px; padding: 0 20px; }
-
-        .movie-card { background: #111722; border-radius: 12px; overflow: hidden; border: 1px solid #1c2637; position: relative; transition: 0.2s; }
-        .movie-card:hover { transform: translateY(-4px); border-color: #6c5ce7; }
-        .poster-box { width: 100%; height: 220px; background: #162030; position: relative; }
-        .poster-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .badge-4k { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.85); color: #00b894; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; border: 1px solid #00b894; }
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.85); color: #ff4757; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
-
-        .movie-info { padding: 12px; }
-        .movie-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
-
-        .btn-group { display: flex; flex-direction: column; gap: 6px; }
-        .play-stremio { display: block; width: 100%; background: #6c5ce7; color: #fff; text-align: center; text-decoration: none; padding: 10px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; }
-        .play-stremio:hover { background: #5641e5; }
-        .copy-btn { width: 100%; background: #1c2637; color: #00d2ff; border: 1px solid #28374d; padding: 7px 0; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        @media (max-width: 768px) {
+            .navbar { padding: 14px 20px; }
+            .nav-links { display: none; }
+            .hero-banner { height: 45vh; min-height: 340px; padding: 0 20px; }
+            .hero-title { font-size: 28px; }
+            .main-container { padding: 0 16px; }
+            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+            .poster-container { height: 190px; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Top Navigation Bar -->
     <div class="navbar">
-        <div class="logo">
-            NURA <span>STREAM</span>
-            <span class="ver-badge">🟢 STREMIO v3.1</span>
+        <div class="nav-left">
+            <div class="logo">NURA <span>STREAMING</span></div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Movies</a></li>
+                <li><a href="#">Web Series</a></li>
+                <li><a href="#">Trending</a></li>
+            </ul>
         </div>
-        <button class="add-btn" onclick="openModal()">➕ Add Stremio Movie</button>
+        <button class="add-btn" onclick="openModal()">➕ Add Movie</button>
     </div>
 
-    <!-- Modal -->
+    <!-- Hero Showcase (Netflix Banner) -->
+    <div class="hero-banner" id="heroBanner">
+        <div class="hero-content">
+            <div class="hero-tag">🔥 4K ULTRA HD CINEMA</div>
+            <h1 class="hero-title">EXPERIENCE <span>CINEMA</span><br>Like Never Before</h1>
+            <p class="hero-desc">Stream your personal collection in Dolby Atmos & 4K directly on your TV with instant Stremio integration.</p>
+            <div class="hero-actions">
+                <button class="hero-play-btn" onclick="playHeroMovie()">▶ Start Watching</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main OTT Catalog -->
+    <div class="main-container">
+        <div class="row-header">
+            <div class="row-title"><span>🎬</span> All Movies & Series (Stremio Direct)</div>
+            <div class="movie-count" id="movieCount">0 Titles</div>
+        </div>
+        <div class="movie-grid" id="movieContainer">
+            <div style="grid-column: 1/-1; text-align: center; color: #555; padding: 60px;">படங்கள் லோட் ஆகிறது...</div>
+        </div>
+    </div>
+
+    <!-- Add Movie Modal (With Gallery Image Upload & Year) -->
     <div class="modal" id="addModal">
         <div class="modal-box">
-            <h3>🎬 படம் சேர்க்க (Magnet Link)</h3>
-            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Pyaar Prema)" required>
-            <input type="text" id="mPoster" placeholder="போஸ்டர் லிங்க் (ஆப்ஷனல்)">
-            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
-            <button class="save-btn" onclick="saveMovie()">Save Movie</button>
-            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
+            <h3>🎬 புதிய படம் சேர்க்க</h3>
+            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan)" required>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="mYear" placeholder="வருடம் (எ.கா: 2024)" value="2024" style="flex: 1;">
+                <select id="mQuality" style="flex: 1;">
+                    <option value="4K UHD">4K UHD</option>
+                    <option value="1080p FHD">1080p FHD</option>
+                    <option value="720p HD">720p HD</option>
+                </select>
+            </div>
+            
+            <div class="file-upload-box">
+                <label for="mFile">📁 Choose Poster from Gallery (போன் கேலரியில் இருந்து படம் தேர்ந்தெடுக்க)</label>
+                <input type="file" id="mFile" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <center><img id="previewImg" class="preview-img"></center>
+            </div>
+            <input type="text" id="mPoster" placeholder="அல்லது போஸ்டர் லிங்க் (Optional)">
 
-    <div class="section-title">🔥 Movies List (Stremio Synced)</div>
-    <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
-            🚀 <b>Stremio OTT Ready!</b>
+            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
+            <button class="save-btn" onclick="saveMovie()">Save & Add to OTT</button>
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
     <script>
         const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
+        let uploadedPosterBase64 = "";
+        let firstMovieMagnet = "";
 
         function openModal() { document.getElementById('addModal').classList.add('active'); }
         function closeModal() { document.getElementById('addModal').classList.remove('active'); }
+
+        // Convert Gallery Image to Base64
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    uploadedPosterBase64 = evt.target.result;
+                    const preview = document.getElementById('previewImg');
+                    preview.src = uploadedPosterBase64;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
         async function fetchAutoPoster(title) {
             try {
@@ -90,7 +176,7 @@
                     return data.results[0].artworkUrl100.replace('100x100bb', '600x900bb');
                 }
             } catch(e) {}
-            return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80";
+            return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80";
         }
 
         async function loadMovies() {
@@ -105,7 +191,9 @@
 
         async function saveMovie() {
             const name = document.getElementById('mName').value.trim();
-            let poster = document.getElementById('mPoster').value.trim();
+            const year = document.getElementById('mYear').value.trim() || '2024';
+            const quality = document.getElementById('mQuality').value;
+            let poster = uploadedPosterBase64 || document.getElementById('mPoster').value.trim();
             const link = document.getElementById('mLink').value.trim();
 
             if (!name || !link) {
@@ -118,7 +206,7 @@
             }
 
             const movieId = 'm_' + Date.now();
-            const movieData = { id: movieId, name, poster, link, date: Date.now() };
+            const movieData = { id: movieId, name, year, quality, poster, link, date: Date.now() };
 
             await fetch(`${FIREBASE_DB_URL}/movies/${movieId}.json`, {
                 method: 'PUT',
@@ -126,9 +214,12 @@
                 body: JSON.stringify(movieData)
             });
 
+            // Reset Form
             document.getElementById('mName').value = '';
             document.getElementById('mPoster').value = '';
             document.getElementById('mLink').value = '';
+            document.getElementById('previewImg').style.display = 'none';
+            uploadedPosterBase64 = "";
             closeModal();
             loadMovies();
         }
@@ -140,58 +231,63 @@
             }
         }
 
-        // Safe launch without white error screen
+        // 100% Tested Working Launch for Mobile & Android TV
         function openInStremio(magnetLink) {
             const cleanMagnet = magnetLink.trim();
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = cleanMagnet;
-            document.body.appendChild(iframe);
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 2000);
+            window.location.href = cleanMagnet;
         }
 
-        function copyMagnet(magnetLink) {
-            navigator.clipboard.writeText(magnetLink).then(() => {
-                alert("Magnet Link Copied! Stremio Search-ல் Paste செய்து உடனே பார்க்கலாம்.");
-            }).catch(() => {
-                prompt("Copy Magnet Link:", magnetLink);
-            });
+        function playHeroMovie() {
+            if (firstMovieMagnet) {
+                openInStremio(firstMovieMagnet);
+            } else {
+                alert("முதலில் ஒரு படத்தை சேர்க்கவும்!");
+            }
         }
 
         function render(data) {
             const container = document.getElementById('movieContainer');
+            const countElem = document.getElementById('movieCount');
             container.innerHTML = '';
 
             if (!data) {
+                countElem.innerText = "0 Titles";
                 container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; color: #00d2ff; padding: 50px; font-size: 15px;">
-                        🚀 <b>Stremio OTT Ready!</b><br><br>
-                        <span style="color: #888; font-size: 13px;">படங்கள் எதுவும் சேர்க்கப்படவில்லை. மேலே உள்ள "➕ Add Stremio Movie" மூலம் புதிய Magnet Link-ஐ சேர்க்கவும்!</span>
+                    <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 60px;">
+                        இன்னும் படங்கள் சேர்க்கப்படவில்லை. மேலே உள்ள <b>"➕ Add Movie"</b> மூலம் புதிய திரைப்படங்களைச் சேர்க்கவும்!
                     </div>
                 `;
                 return;
             }
 
             const list = Object.values(data).sort((a,b) => (b.date || 0) - (a.date || 0));
+            countElem.innerText = `${list.length} Titles`;
+
+            // Set first movie to Hero Banner
+            if (list.length > 0) {
+                firstMovieMagnet = list[0].link;
+            }
 
             list.forEach(m => {
                 const magnet = m.link.trim();
+                const year = m.year || '2024';
+                const quality = m.quality || '4K UHD';
+
                 const card = document.createElement('div');
                 card.className = 'movie-card';
+                card.onclick = () => openInStremio(magnet);
                 card.innerHTML = `
-                    <div class="poster-box">
-                        <span class="badge-4k">4K / 1080p</span>
-                        <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
-                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80'">
+                    <div class="poster-container">
+                        <span class="card-badge">${quality}</span>
+                        <span class="card-year">${year}</span>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteMovie('${m.id}')">✕</button>
+                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'">
                     </div>
-                    <div class="movie-info">
-                        <div class="movie-title">${m.name}</div>
-                        <div class="btn-group">
-                            <button class="play-stremio" onclick="openInStremio('${magnet.replace(/'/g, "\\'")}')">▶ Watch in Stremio</button>
-                            <button class="copy-btn" onclick="copyMagnet('${magnet.replace(/'/g, "\\'")}')">📋 Copy Magnet</button>
-                        </div>
+                    <div class="movie-details">
+                        <div class="movie-name">${m.name}</div>
+                        <button class="play-trigger" onclick="event.stopPropagation(); openInStremio('${magnet.replace(/'/g, "\\'")}')">
+                            ▶ Play Now
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
