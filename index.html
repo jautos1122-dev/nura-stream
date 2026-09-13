@@ -2,222 +2,364 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NURA STREAMING</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nura Streaming</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; }
-        body { background: #06090e; color: #fff; padding-bottom: 50px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            outline: none;
+        }
 
-        /* Top Bar */
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(6, 9, 14, 0.95); border-bottom: 1px solid #162030; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .logo { font-size: 20px; font-weight: 900; color: #e50914; letter-spacing: 1.5px; }
-        .logo span { color: #00d2ff; }
-        .add-btn { background: #e50914; color: #fff; border: none; padding: 9px 15px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-        /* Full Hero Banner */
-        .hero-banner { width: 100%; height: 210px; background: linear-gradient(180deg, rgba(6,9,14,0.3) 0%, #06090e 100%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; }
-        .hero-tag { color: #00d2ff; font-size: 10px; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; }
-        .hero-title { font-size: 22px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
-        .hero-title span { color: #e50914; }
+        /* 1. NETFLIX STYLE SPLASH SCREEN */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a0808 0%, #000000 90%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
 
-        /* Main Catalog */
-        .catalog-title { font-size: 16px; font-weight: 800; margin: 16px 18px 12px; display: flex; justify-content: space-between; align-items: center; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 14px; padding: 0 16px; }
+        .splash-logo {
+            font-size: 85px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #E50914;
+            text-shadow: 0 0 35px rgba(229, 9, 20, 0.8), 0 0 70px rgba(229, 9, 20, 0.4);
+            animation: netflixIntro 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
 
-        /* Movie Card */
-        .movie-card { background: #111722; border-radius: 10px; overflow: hidden; border: 1px solid #1c2637; position: relative; }
-        .poster-box { width: 100%; height: 210px; position: relative; background: #162030; }
-        .poster-box img { width: 100%; height: 100%; object-fit: cover; }
-        .card-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.85); color: #00d2ff; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; border: 1px solid #00d2ff; }
-        .card-year { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.85); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
-        .delete-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(229,9,20,0.9); color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; }
+        .splash-sub {
+            font-size: 16px;
+            letter-spacing: 6px;
+            color: #ffffff;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeInSub 1.5s ease 0.6s forwards;
+            text-transform: uppercase;
+        }
 
-        .movie-info { padding: 10px; }
-        .movie-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
-        .play-btn { width: 100%; background: #6c5ce7; color: #fff; border: none; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        @keyframes netflixIntro {
+            0% {
+                transform: scale(0.6);
+                opacity: 0;
+                filter: brightness(0.5) blur(10px);
+            }
+            50% {
+                opacity: 1;
+                filter: brightness(1.3) blur(0px);
+            }
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+                filter: brightness(1);
+            }
+        }
 
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
-        .modal.active { display: flex; }
-        .modal-box { background: #111722; width: 100%; max-width: 440px; padding: 20px; border-radius: 10px; border: 1px solid #233044; }
-        .modal-box h3 { margin-bottom: 12px; color: #00d2ff; font-size: 16px; }
-        .modal-box input, .modal-box select { width: 100%; padding: 11px; margin-bottom: 10px; background: #080c13; border: 1px solid #253347; color: #fff; border-radius: 6px; font-size: 13px; outline: none; }
-        .file-box { background: #080c13; border: 1px dashed #253347; padding: 10px; border-radius: 6px; margin-bottom: 10px; text-align: center; }
-        .file-box label { font-size: 12px; color: #00d2ff; cursor: pointer; }
-        .preview-img { width: 70px; height: 95px; object-fit: cover; border-radius: 4px; margin: 6px auto 0; display: none; }
-        .save-btn { width: 100%; background: #e50914; color: #fff; border: none; padding: 11px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 6px; }
-        .cancel-btn { width: 100%; background: transparent; color: #777; border: 1px solid #253347; padding: 9px; border-radius: 6px; cursor: pointer; }
+        @keyframes fadeInSub {
+            to {
+                opacity: 0.8;
+                transform: translateY(-5px);
+            }
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 45px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-logo {
+            font-size: 26px;
+            font-weight: 900;
+            color: #E50914;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo span {
+            color: #fff;
+            font-size: 14px;
+            background: #E50914;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 6px 14px;
+        }
+
+        .search-container input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+
+        /* MOVIES CONTAINER & ULTRA-FAST TV FOCUS */
+        .category-title {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 45px;
+            color: #e5e5e5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 20px;
+            padding: 10px 45px 60px 45px;
+            will-change: transform;
+        }
+
+        .movie-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #141414;
+            cursor: pointer;
+            outline: none;
+            border: 3px solid transparent;
+            transform: scale(1);
+            transition: transform 0.15s ease-out, border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+            will-change: transform;
+        }
+
+        /* 3. NETFLIX/PRIME WHITE FOCUS FRAME */
+        .movie-card:focus,
+        .movie-card:hover {
+            transform: scale(1.08) translateY(-4px);
+            border-color: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.35), 0 0 15px rgba(229, 9, 20, 0.5);
+            z-index: 10;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        .movie-info {
+            padding: 10px;
+            background: linear-gradient(180deg, transparent 0%, #111 80%);
+        }
+
+        .movie-title {
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .movie-quality {
+            font-size: 10px;
+            color: #46d369;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        /* TOAST FOR LONG PRESS NOTICE */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #E50914;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="logo">NURA <span>STREAMING</span></div>
-        <button class="add-btn" onclick="openModal()">➕ Add Movie</button>
+    <!-- 1. NETFLIX INTRO ANIMATION -->
+    <div id="splash-screen">
+        <div class="splash-logo">NURA</div>
+        <div class="splash-sub">Streaming Service</div>
     </div>
 
-    <!-- Perfect Fit Banner -->
-    <div class="hero-banner">
-        <div class="hero-tag">🔥 4K ULTRA HD CINEMA</div>
-        <div class="hero-title">EXPERIENCE <span>CINEMA</span></div>
-    </div>
-
-    <div class="catalog-title">
-        <span>🎬 Latest Movies (Stremio Direct)</span>
-        <span id="movieCount" style="font-size: 12px; color: #888;">0 Titles</span>
-    </div>
-
-    <div class="movie-grid" id="movieContainer">
-        <div style="grid-column: 1/-1; text-align: center; color: #667; padding: 40px;">லோட் ஆகிறது...</div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="addModal">
-        <div class="modal-box">
-            <h3>🎬 புதிய படம் சேர்க்க</h3>
-            <input type="text" id="mName" placeholder="படத்தின் பெயர் (எ.கா: Jana Nayagan)" required>
-            <div style="display: flex; gap: 8px;">
-                <input type="number" id="mYear" placeholder="வருடம்" value="2024" style="flex: 1;">
-                <select id="mQuality" style="flex: 1;">
-                    <option value="4K UHD">4K UHD</option>
-                    <option value="1080p FHD">1080p FHD</option>
-                </select>
-            </div>
-            
-            <div class="file-box">
-                <label for="mFile">📁 Choose Poster from Gallery</label>
-                <input type="file" id="mFile" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                <center><img id="previewImg" class="preview-img"></center>
-            </div>
-            <input type="text" id="mPoster" placeholder="அல்லது போஸ்டர் லிங்க் (Optional)">
-
-            <input type="text" id="mLink" placeholder="TamilMV Magnet Link (magnet:?...)" required>
-            <button class="save-btn" onclick="saveMovie()">Save Movie</button>
-            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    <header>
+        <div class="brand-logo">NURA <span>OTT</span></div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="திரைப்படங்களைத் தேடுக..." onkeyup="filterMovies()">
         </div>
-    </div>
+    </header>
+
+    <div class="category-title">🎬 அண்மையில் சேர்க்கப்பட்டவை</div>
+    <div class="movies-grid" id="moviesGrid"></div>
+
+    <div id="toast"></div>
 
     <script>
-        const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
-        let uploadedPosterBase64 = "";
+        // Splash Screen Hide after 2.4s
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.visibility = 'hidden';
+                    // Focus first movie card automatically for TV remote
+                    const firstCard = document.querySelector('.movie-card');
+                    if (firstCard) firstCard.focus();
+                }, 800);
+            }, 2400);
+            loadMovies();
+        });
 
-        function openModal() { document.getElementById('addModal').classList.add('active'); }
-        function closeModal() { document.getElementById('addModal').classList.remove('active'); }
-
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    uploadedPosterBase64 = evt.target.result;
-                    const preview = document.getElementById('previewImg');
-                    preview.src = uploadedPosterBase64;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        async function fetchAutoPoster(title) {
-            try {
-                const cleanTitle = title.replace(/\(.*?\)/g, '').trim();
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanTitle)}&media=movie&limit=1`);
-                const data = await res.json();
-                if (data.results && data.results.length > 0) {
-                    return data.results[0].artworkUrl100.replace('100x100bb', '600x900bb');
-                }
-            } catch(e) {}
-            return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80";
-        }
+        let allMovies = [];
 
         async function loadMovies() {
             try {
-                const res = await fetch(`${FIREBASE_DB_URL}/movies.json`);
-                const data = await res.json();
-                render(data);
-            } catch (err) {}
-        }
-
-        async function saveMovie() {
-            const name = document.getElementById('mName').value.trim();
-            const year = document.getElementById('mYear').value.trim() || '2024';
-            const quality = document.getElementById('mQuality').value;
-            let poster = uploadedPosterBase64 || document.getElementById('mPoster').value.trim();
-            const link = document.getElementById('mLink').value.trim();
-
-            if (!name || !link) {
-                alert("பெயர் மற்றும் Magnet Link உள்ளிடவும்!");
-                return;
-            }
-
-            if (!poster) {
-                poster = await fetchAutoPoster(name);
-            }
-
-            const movieId = 'm_' + Date.now();
-            const movieData = { id: movieId, name, year, quality, poster, link, date: Date.now() };
-
-            await fetch(`${FIREBASE_DB_URL}/movies/${movieId}.json`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(movieData)
-            });
-
-            document.getElementById('mName').value = '';
-            document.getElementById('mPoster').value = '';
-            document.getElementById('mLink').value = '';
-            document.getElementById('previewImg').style.display = 'none';
-            uploadedPosterBase64 = "";
-            closeModal();
-            loadMovies();
-        }
-
-        async function deleteMovie(id) {
-            if (confirm("நீக்கவா?")) {
-                await fetch(`${FIREBASE_DB_URL}/movies/${id}.json`, { method: 'DELETE' });
-                loadMovies();
+                const res = await fetch('movies.json?t=' + Date.now());
+                allMovies = await res.json();
+                renderMovies(allMovies);
+            } catch (e) {
+                console.error("Error loading movies:", e);
             }
         }
 
-        function playMovie(magnetLink) {
-            window.location.href = magnetLink.trim();
-        }
+        function renderMovies(movies) {
+            const grid = document.getElementById('moviesGrid');
+            grid.innerHTML = '';
 
-        function render(data) {
-            const container = document.getElementById('movieContainer');
-            const countElem = document.getElementById('movieCount');
-            container.innerHTML = '';
-
-            if (!data) {
-                countElem.innerText = "0 Titles";
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #667; padding: 40px;">படங்கள் சேர்க்கப்படவில்லை. "➕ Add Movie" மூலம் சேர்க்கவும்!</div>';
-                return;
-            }
-
-            const list = Object.values(data).sort((a,b) => (b.date || 0) - (a.date || 0));
-            countElem.innerText = `${list.length} Titles`;
-
-            list.forEach(m => {
-                const magnet = m.link.trim();
+            movies.forEach((movie, index) => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
+                card.tabIndex = 0; // Enables TV Remote Focus
+
                 card.innerHTML = `
-                    <div class="poster-box">
-                        <span class="card-badge">${m.quality || '4K UHD'}</span>
-                        <span class="card-year">${m.year || '2024'}</span>
-                        <button class="delete-btn" onclick="deleteMovie('${m.id}')">✕</button>
-                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'">
-                    </div>
+                    <img src="${movie.poster || 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${movie.title}" loading="lazy">
                     <div class="movie-info">
-                        <div class="movie-name">${m.name}</div>
-                        <button class="play-btn" onclick="playMovie('${magnet.replace(/'/g, "\\'")}')">▶ Play Now</button>
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-quality">4K UHD • HDR</div>
                     </div>
                 `;
-                container.appendChild(card);
+
+                // Single Click: Play via Stremio Magnet Intent
+                card.addEventListener('click', () => {
+                    playMovie(movie.magnet);
+                });
+
+                // 2. LONG PRESS TO DELETE (3 SECONDS) - Safe for TV
+                let pressTimer = null;
+                let isLongPress = false;
+
+                const startPress = () => {
+                    isLongPress = false;
+                    pressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        confirmDelete(movie.title, index);
+                    }, 2500); // 2.5 seconds hold
+                };
+
+                const cancelPress = () => {
+                    clearTimeout(pressTimer);
+                };
+
+                // Mouse / Touch Events
+                card.addEventListener('mousedown', startPress);
+                card.addEventListener('mouseup', cancelPress);
+                card.addEventListener('touchstart', startPress, { passive: true });
+                card.addEventListener('touchend', cancelPress);
+
+                // TV Remote 'OK' Button Handling (Keycode 13 / Center D-Pad)
+                card.addEventListener('keydown', (e) => {
+                    if (e.keyCode === 13 || e.key === 'Enter') {
+                        if (!pressTimer) {
+                            startPress();
+                        }
+                    }
+                });
+
+                card.addEventListener('keyup', (e) => {
+                    if (e.keyCode === 13 || e.key === 'Enter') {
+                        cancelPress();
+                        if (!isLongPress) {
+                            playMovie(movie.magnet);
+                        }
+                    }
+                });
+
+                grid.appendChild(card);
             });
         }
 
-        loadMovies();
+        function playMovie(magnet) {
+            if (!magnet) {
+                showToast("வீடியோ லிங்க் கிடைக்கவில்லை!");
+                return;
+            }
+            // Stremio / TV Intent Launcher
+            window.location.href = magnet;
+        }
+
+        function confirmDelete(title, index) {
+            const ok = confirm(`"${title}" திரைப்படத்தை நீக்க விரும்புகிறீர்களா?`);
+            if (ok) {
+                allMovies.splice(index, 1);
+                renderMovies(allMovies);
+                showToast("திரைப்படம் வெற்றிகரமாக நீக்கப்பட்டது.");
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+
+        function filterMovies() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allMovies.filter(m => m.title.toLowerCase().includes(q));
+            renderMovies(filtered);
+        }
     </script>
 </body>
 </html>
