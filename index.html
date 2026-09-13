@@ -16,184 +16,172 @@
         }
 
         body { 
-            background: #080b11; 
+            background: #070a0f; 
             color: #fff; 
-            overflow-x: hidden;
-            overflow-y: auto;
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 50px;
+            overflow-x: hidden;
         }
 
-        /* 1. CINEMATIC SPLASH SCREEN */
+        /* 1. CINEMATIC SPLASH INTRO (LIGHTWEIGHT - ZERO LAG) */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: radial-gradient(circle at center, #2b0606 0%, #080b11 90%);
+            background: #070a0f;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 99999;
-            transition: opacity 0.6s ease, visibility 0.6s;
+            transition: opacity 0.5s ease;
         }
 
         .splash-logo {
-            font-size: 85px;
+            font-size: 80px;
             font-weight: 900;
-            letter-spacing: 7px;
+            letter-spacing: 6px;
             color: #e50914;
-            text-shadow: 0 0 40px rgba(229, 9, 20, 0.8);
-            animation: splashZoom 3.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            text-shadow: 0 0 30px rgba(229, 9, 20, 0.7);
         }
 
         .splash-sub {
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 5px;
             color: #00d2ff;
-            margin-top: 10px;
+            margin-top: 8px;
             text-transform: uppercase;
             font-weight: 800;
-            opacity: 0.9;
         }
 
-        @keyframes splashZoom {
-            0% { transform: scale(0.6); opacity: 0; }
-            40% { opacity: 1; }
-            100% { transform: scale(1.1); opacity: 0.95; }
-        }
-
-        /* TOP NAVIGATION */
+        /* TOP NAVIGATION BAR */
         .navbar { 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            padding: 14px 36px; 
-            background: #080b11; 
+            padding: 12px 24px; 
+            background: #0a0e17; 
             border-bottom: 1px solid #162030; 
             position: sticky; 
             top: 0; 
             z-index: 100; 
         }
 
-        .logo { font-size: 22px; font-weight: 900; color: #e50914; letter-spacing: 1.5px; }
+        .logo { 
+            font-size: 20px; 
+            font-weight: 900; 
+            color: #e50914; 
+            letter-spacing: 1.5px; 
+            margin-right: 20px;
+        }
         .logo span { color: #00d2ff; }
+
+        /* 4 CATEGORY BUTTONS ON TOP */
+        .nav-categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex-grow: 1;
+        }
+        .nav-categories::-webkit-scrollbar { display: none; }
+
+        .nav-btn {
+            background: #111722;
+            color: #94a3b8;
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active {
+            background: #e50914;
+            color: #fff;
+            border-color: #ffffff;
+        }
+
+        .nav-btn:focus {
+            border-color: #ffffff !important;
+            background: #e50914;
+            color: #fff;
+        }
 
         .add-btn { 
             background: #00d2ff; 
             color: #06090e; 
             border: 2px solid transparent; 
-            padding: 8px 18px; 
+            padding: 8px 16px; 
             border-radius: 8px; 
-            font-weight: 800; 
+            font-weight: 900; 
             font-size: 13px; 
             cursor: pointer; 
-            transition: transform 0.1s ease;
+            white-space: nowrap;
         }
-        .add-btn:focus, .add-btn:hover { 
-            border-color: #fff !important; 
-            box-shadow: 0 0 15px #00d2ff; 
-            transform: scale(1.08); 
+        .add-btn:focus { 
+            border-color: #ffffff !important; 
+            background: #fff;
         }
 
-        /* HERO FEATURE BANNER */
-        .hero-banner { 
-            width: calc(100% - 72px); 
-            margin: 16px auto 24px auto;
-            border-radius: 14px;
-            height: 200px; 
-            background: linear-gradient(180deg, rgba(8,11,17,0.1) 0%, #080b11 95%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; 
+        /* HEADER INFO */
+        .section-header { 
             display: flex; 
-            flex-direction: column; 
-            justify-content: flex-end; 
-            padding: 24px; 
-            border: 3px solid transparent;
-            outline: none;
-            transition: border-color 0.15s ease;
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 16px 24px 8px 24px; 
         }
-        .hero-banner:focus {
-            border-color: #ffffff;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
-        }
-        .hero-tag { color: #00d2ff; font-size: 11px; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
-        .hero-title { font-size: 26px; font-weight: 900; line-height: 1.2; }
-        .hero-title span { color: #e50914; }
+        .section-title { font-size: 16px; font-weight: 800; color: #f1f5f9; }
+        .section-count { font-size: 12px; color: #64748b; font-weight: 700; }
 
-        /* 2. NET MIRROR STYLE HORIZONTAL ROWS (CAROUSELS) */
-        .row-container {
-            margin-bottom: 28px;
-            padding: 0 36px;
+        /* MOVIE GRID: 4-5 COLUMNS ON TV, 2 ON MOBILE */
+        .movie-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            padding: 8px 24px 40px 24px; 
         }
 
-        .row-header {
-            font-size: 17px;
-            font-weight: 800;
-            color: #e5e5e5;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .row-header span {
-            font-size: 11px;
-            color: #8fa0b5;
-            background: #141b27;
-            padding: 2px 8px;
-            border-radius: 12px;
+        @media (min-width: 650px) {
+            .movie-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
         }
 
-        /* HORIZONTAL SLIDER */
-        .row-slider {
-            display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            padding: 10px 4px 18px 4px;
-            scroll-behavior: smooth;
+        @media (min-width: 950px) {
+            .movie-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
         }
-        .row-slider::-webkit-scrollbar { display: none; }
 
-        /* MOVIE CARD */
-        .movie-card {
-            flex: 0 0 160px;
-            background: #111722;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 3px solid transparent;
-            position: relative;
+        @media (min-width: 1250px) {
+            .movie-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
+        }
+
+        /* HARDWARE ACCELERATED ZERO-LAG CARD */
+        .movie-card { 
+            background: #111722; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            border: 3px solid transparent; 
             cursor: pointer;
             outline: none;
-            transform: translateZ(0);
-            transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1), border-color 0.12s ease-out, box-shadow 0.12s ease-out;
-            will-change: transform;
         }
 
-        @media (max-width: 600px) {
-            .navbar, .row-container { padding: 0 16px; }
-            .hero-banner { width: calc(100% - 32px); height: 160px; padding: 16px; }
-            .movie-card { flex: 0 0 135px; }
-            .poster-box { height: 190px !important; }
-        }
-
-        /* WHITE FOCUS BORDER (NET MIRROR / NETFLIX STYLE) */
+        /* INSTANT WHITE BORDER FOCUS (NO DELAYS) */
         .movie-card:focus,
         .movie-card:hover {
-            transform: scale(1.08) translateY(-4px);
             border-color: #ffffff !important;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 255, 255, 0.7);
-            z-index: 10;
+            background: #162030;
         }
 
         .poster-box { 
             width: 100%; 
-            height: 225px; 
+            height: 230px; 
             position: relative; 
             background: #141b26; 
         }
+        
         .poster-box img { 
             width: 100%; 
             height: 100%; 
@@ -201,12 +189,12 @@
             display: block; 
             pointer-events: none; 
         }
-        
+
         .card-badge { 
             position: absolute; 
             top: 6px; 
             left: 6px; 
-            background: rgba(0,0,0,0.85); 
+            background: #000; 
             color: #00d2ff; 
             font-size: 9px; 
             font-weight: 800; 
@@ -218,7 +206,7 @@
             position: absolute; 
             top: 6px; 
             right: 6px; 
-            background: rgba(0,0,0,0.85); 
+            background: #000; 
             color: #fff; 
             font-size: 9px; 
             font-weight: 700; 
@@ -227,12 +215,12 @@
         }
 
         .movie-info { 
-            padding: 8px; 
+            padding: 8px 6px; 
             background: #111722;
             text-align: center;
         }
         .movie-name { 
-            font-size: 12px; 
+            font-size: 13px; 
             font-weight: 700; 
             white-space: nowrap; 
             overflow: hidden; 
@@ -240,7 +228,7 @@
             color: #fff;
         }
 
-        /* PASSWORD MODAL & ADD MODAL */
+        /* MODALS */
         .modal { 
             display: none; 
             position: fixed; 
@@ -248,7 +236,7 @@
             left: 0; 
             width: 100%; 
             height: 100%; 
-            background: rgba(0,0,0,0.88); 
+            background: rgba(0,0,0,0.9); 
             z-index: 100000; 
             align-items: center; 
             justify-content: center; 
@@ -260,7 +248,7 @@
             width: 100%; 
             max-width: 420px; 
             padding: 22px; 
-            border-radius: 12px; 
+            border-radius: 10px; 
             border: 1px solid #233044; 
         }
         .modal-box h3 { margin-bottom: 12px; color: #00d2ff; font-size: 16px; }
@@ -274,7 +262,6 @@
             border-radius: 6px; 
             font-size: 13px; 
         }
-        .modal-box input:focus, .modal-box select:focus { border-color: #00d2ff; }
         
         .file-box { background: #080c13; border: 1px dashed #253347; padding: 10px; border-radius: 6px; margin-bottom: 10px; text-align: center; }
         .file-box label { font-size: 12px; color: #00d2ff; cursor: pointer; }
@@ -292,7 +279,6 @@
             margin-bottom: 8px; 
             font-size: 14px; 
         }
-        .save-btn:focus { box-shadow: 0 0 12px #fff; }
         .cancel-btn { 
             width: 100%; 
             background: transparent; 
@@ -304,69 +290,58 @@
             font-weight: bold;
         }
 
-        /* TOAST */
         #toast {
             position: fixed;
             bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(10, 10, 15, 0.95);
+            background: #111722;
             border: 1px solid #e50914;
             color: #fff;
-            padding: 9px 22px;
+            padding: 8px 20px;
             border-radius: 20px;
             font-size: 13px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
             z-index: 100000;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. CINEMATIC SPLASH INTRO (4 SECONDS) -->
+    <!-- 1. LIGHTWEIGHT CINEMATIC INTRO -->
     <div id="splash-screen">
         <div class="splash-logo">NURA</div>
         <div class="splash-sub">Streaming Service</div>
     </div>
 
-    <!-- TOP NAVIGATION -->
+    <!-- TOP NAVIGATION BAR -->
     <div class="navbar">
         <div class="logo">NURA <span>OTT</span></div>
-        <button class="add-btn" id="btnAddMovie" tabindex="1" onclick="openPasswordModal()">➕ Add Movie</button>
+        <div class="nav-categories">
+            <button class="nav-btn active" id="btn-tamil" onclick="selectCategory('tamil')">Tamil Movies</button>
+            <button class="nav-btn" id="btn-dubbed" onclick="selectCategory('dubbed')">Tamil Dubbed</button>
+            <button class="nav-btn" id="btn-hollywood" onclick="selectCategory('hollywood')">Hollywood Dubbed</button>
+            <button class="nav-btn" id="btn-series" onclick="selectCategory('series')">Web Series</button>
+        </div>
+        <button class="add-btn" id="btnAddMovie" onclick="openPasswordModal()">➕ Add Title</button>
     </div>
 
-    <!-- HERO BANNER -->
-    <div class="hero-banner" id="heroBanner" tabindex="2">
-        <div class="hero-tag">🔥 4K ULTRA HD STREAMING</div>
-        <div class="hero-title">EXPERIENCE <span>CINEMA</span></div>
+    <!-- SECTION TITLE & COUNT -->
+    <div class="section-header">
+        <div class="section-title" id="catTitle">🎬 Tamil Movies</div>
+        <div class="section-count" id="movieCount">0 Titles</div>
     </div>
 
-    <!-- 4 DYNAMIC CATEGORY ROWS -->
-    <div class="row-container">
-        <div class="row-header">🎬 Tamil Movies <span id="count-tamil">0</span></div>
-        <div class="row-slider" id="row-tamil"></div>
-    </div>
-
-    <div class="row-container">
-        <div class="row-header">🎙️ Tamil Dubbed Movies <span id="count-dubbed">0</span></div>
-        <div class="row-slider" id="row-dubbed"></div>
-    </div>
-
-    <div class="row-container">
-        <div class="row-header">🍿 Hollywood Dubbed <span id="count-hollywood">0</span></div>
-        <div class="row-slider" id="row-hollywood"></div>
-    </div>
-
-    <div class="row-container">
-        <div class="row-header">📺 Web Series & Shows <span id="count-series">0</span></div>
-        <div class="row-slider" id="row-series"></div>
+    <!-- CLEAN MULTI-ROW GRID -->
+    <div class="movie-grid" id="movieContainer">
+        <div style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 40px;">Loading catalog...</div>
     </div>
 
     <div id="toast"></div>
 
-    <!-- PASSWORD MODAL -->
+    <!-- PASSWORD MODAL (WORKS IN TV WEBVIEW) -->
     <div class="modal" id="passModal">
         <div class="modal-box" style="max-width: 320px; text-align: center;">
             <h3>🔒 Admin Security</h3>
@@ -384,13 +359,13 @@
             
             <label style="font-size: 11px; color: #888; margin-bottom: 4px; display: block;">Category:</label>
             <select id="mCategory">
-                <option value="tamil">🎬 Tamil Movies</option>
-                <option value="dubbed">🎙️ Tamil Dubbed</option>
-                <option value="hollywood">🍿 Hollywood Dubbed</option>
-                <option value="series">📺 Web Series</option>
+                <option value="tamil">Tamil Movies</option>
+                <option value="dubbed">Tamil Dubbed</option>
+                <option value="hollywood">Hollywood Dubbed</option>
+                <option value="series">Web Series</option>
             </select>
 
-            <input type="text" id="mName" placeholder="Movie Title (e.g. Jana Nayagan)" required>
+            <input type="text" id="mName" placeholder="Title (e.g. Jana Nayagan)" required>
             <div style="display: flex; gap: 8px;">
                 <input type="number" id="mYear" placeholder="Year" value="2024" style="flex: 1;">
                 <select id="mQuality" style="flex: 1;">
@@ -414,10 +389,11 @@
 
     <script>
         const FIREBASE_DB_URL = "https://nurastream-8f073-default-rtdb.firebaseio.com";
+        let currentCategory = 'tamil';
         let allMoviesData = {};
         let uploadedPosterBase64 = "";
 
-        // 4-SECOND CINEMATIC INTRO SOUND (Deep Bass Boom + Chime)
+        // CINEMATIC SOUND
         function playCinematicSound() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -427,30 +403,16 @@
                 const bassOsc = ctx.createOscillator();
                 const bassGain = ctx.createGain();
                 bassOsc.type = 'sine';
-                bassOsc.frequency.setValueAtTime(105, ctx.currentTime);
-                bassOsc.frequency.exponentialRampToValueAtTime(28, ctx.currentTime + 3.8);
+                bassOsc.frequency.setValueAtTime(100, ctx.currentTime);
+                bassOsc.frequency.exponentialRampToValueAtTime(28, ctx.currentTime + 2.5);
 
                 bassGain.gain.setValueAtTime(1.0, ctx.currentTime);
-                bassGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4.0);
+                bassGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.8);
 
                 bassOsc.connect(bassGain);
                 bassGain.connect(ctx.destination);
                 bassOsc.start();
-                bassOsc.stop(ctx.currentTime + 4.0);
-
-                const chimeOsc = ctx.createOscillator();
-                const chimeGain = ctx.createGain();
-                chimeOsc.type = 'triangle';
-                chimeOsc.frequency.setValueAtTime(260, ctx.currentTime);
-                chimeOsc.frequency.exponentialRampToValueAtTime(130, ctx.currentTime + 3.5);
-
-                chimeGain.gain.setValueAtTime(0.3, ctx.currentTime);
-                chimeGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.8);
-
-                chimeOsc.connect(chimeGain);
-                chimeGain.connect(ctx.destination);
-                chimeOsc.start();
-                chimeOsc.stop(ctx.currentTime + 3.8);
+                bassOsc.stop(ctx.currentTime + 2.8);
             } catch(e) {}
         }
 
@@ -462,102 +424,103 @@
                 if (splash) {
                     splash.style.opacity = '0';
                     setTimeout(() => {
-                        splash.style.visibility = 'hidden';
-                        // Focus first card in Tamil row on start
-                        const firstCard = document.querySelector('#row-tamil .movie-card');
+                        splash.style.display = 'none';
+                        const firstCard = document.querySelector('.movie-card');
                         if (firstCard) firstCard.focus();
-                    }, 600);
+                    }, 500);
                 }
-            }, 3500);
+            }, 2500);
 
             loadMovies();
-            setupDpadNavigation();
+            setupDpadGrid();
         });
 
-        // 3. ZERO-LAG TV REMOTE D-PAD ENGINE (Left/Right inside Row, Up/Down between Rows)
-        function setupDpadNavigation() {
+        // 2. HARDWARE-LEVEL D-PAD GRID ENGINE (ZERO-LAG TV REMOTE)
+        function setupDpadGrid() {
             window.addEventListener('keydown', (e) => {
                 const active = document.activeElement;
-                if (!active || !active.classList.contains('movie-card')) return;
+                if (!active) return;
 
-                const slider = active.parentElement;
-                const cardsInRow = Array.from(slider.querySelectorAll('.movie-card'));
-                const currentIndex = cardsInRow.indexOf(active);
+                // Handle Navigation inside Movie Cards
+                if (active.classList.contains('movie-card')) {
+                    const cards = Array.from(document.querySelectorAll('.movie-card'));
+                    const index = cards.indexOf(active);
+                    if (index === -1) return;
 
-                // LEFT ARROW (Key 37)
-                if (e.keyCode === 37) {
-                    if (currentIndex > 0) {
-                        e.preventDefault();
-                        cardsInRow[currentIndex - 1].focus();
-                    }
-                }
-                // RIGHT ARROW (Key 39)
-                else if (e.keyCode === 39) {
-                    if (currentIndex < cardsInRow.length - 1) {
-                        e.preventDefault();
-                        cardsInRow[currentIndex + 1].focus();
-                    }
-                }
-                // UP ARROW (Key 38)
-                else if (e.keyCode === 38) {
-                    e.preventDefault();
-                    const currentRowContainer = slider.closest('.row-container');
-                    const prevRowContainer = currentRowContainer.previousElementSibling;
+                    const cols = getGridColumnCount();
 
-                    if (prevRowContainer && prevRowContainer.classList.contains('row-container')) {
-                        const targetSlider = prevRowContainer.querySelector('.row-slider');
-                        const targetCards = targetSlider.querySelectorAll('.movie-card');
-                        if (targetCards.length > 0) {
-                            const targetIndex = Math.min(currentIndex, targetCards.length - 1);
-                            targetCards[targetIndex].focus();
+                    // LEFT (37)
+                    if (e.keyCode === 37) {
+                        if (index > 0) {
+                            e.preventDefault();
+                            cards[index - 1].focus();
                         }
-                    } else {
-                        document.getElementById('heroBanner').focus();
                     }
-                }
-                // DOWN ARROW (Key 40)
-                else if (e.keyCode === 40) {
-                    e.preventDefault();
-                    const currentRowContainer = slider.closest('.row-container');
-                    const nextRowContainer = currentRowContainer.nextElementSibling;
-
-                    if (nextRowContainer && nextRowContainer.classList.contains('row-container')) {
-                        const targetSlider = nextRowContainer.querySelector('.row-slider');
-                        const targetCards = targetSlider.querySelectorAll('.movie-card');
-                        if (targetCards.length > 0) {
-                            const targetIndex = Math.min(currentIndex, targetCards.length - 1);
-                            targetCards[targetIndex].focus();
+                    // RIGHT (39)
+                    else if (e.keyCode === 39) {
+                        if (index < cards.length - 1) {
+                            e.preventDefault();
+                            cards[index + 1].focus();
+                        }
+                    }
+                    // UP (38)
+                    else if (e.keyCode === 38) {
+                        e.preventDefault();
+                        if (index - cols >= 0) {
+                            cards[index - cols].focus();
+                        } else {
+                            // Go to top Category Button
+                            const activeCat = document.querySelector('.nav-btn.active');
+                            if (activeCat) activeCat.focus();
+                        }
+                    }
+                    // DOWN (40)
+                    else if (e.keyCode === 40) {
+                        e.preventDefault();
+                        if (index + cols < cards.length) {
+                            cards[index + cols].focus();
                         }
                     }
                 }
-            });
-
-            // Down key from Hero Banner goes to first row
-            document.getElementById('heroBanner').addEventListener('keydown', (e) => {
-                if (e.keyCode === 40) {
-                    e.preventDefault();
-                    const firstCard = document.querySelector('#row-tamil .movie-card');
-                    if (firstCard) firstCard.focus();
-                } else if (e.keyCode === 38) {
-                    e.preventDefault();
-                    document.getElementById('btnAddMovie').focus();
-                }
-            });
-
-            // Down key from Add Button goes to Hero Banner
-            document.getElementById('btnAddMovie').addEventListener('keydown', (e) => {
-                if (e.keyCode === 40) {
-                    e.preventDefault();
-                    document.getElementById('heroBanner').focus();
+                // Handle Navigation from Category Buttons
+                else if (active.classList.contains('nav-btn')) {
+                    if (e.keyCode === 40) { // DOWN
+                        e.preventDefault();
+                        const firstCard = document.querySelector('.movie-card');
+                        if (firstCard) firstCard.focus();
+                    }
                 }
             });
         }
 
-        // PASSWORD MODAL CONTROLS (420420)
+        function getGridColumnCount() {
+            const w = window.innerWidth;
+            if (w >= 1250) return 5;
+            if (w >= 950) return 4;
+            if (w >= 650) return 3;
+            return 2;
+        }
+
+        // CATEGORY SWITCHING
+        function selectCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + cat).classList.add('active');
+
+            const titleElem = document.getElementById('catTitle');
+            if (cat === 'tamil') titleElem.innerText = '🎬 Tamil Movies';
+            else if (cat === 'dubbed') titleElem.innerText = '🎙️ Tamil Dubbed';
+            else if (cat === 'hollywood') titleElem.innerText = '🍿 Hollywood Dubbed';
+            else if (cat === 'series') titleElem.innerText = '📺 Web Series';
+
+            renderMovies();
+        }
+
+        // PASSWORD MODAL
         function openPasswordModal() {
             document.getElementById('adminPassInput').value = '';
             document.getElementById('passModal').classList.add('active');
-            setTimeout(() => { document.getElementById('adminPassInput').focus(); }, 150);
+            setTimeout(() => { document.getElementById('adminPassInput').focus(); }, 100);
         }
 
         function closePasswordModal() {
@@ -581,6 +544,7 @@
         });
 
         function openModal() { 
+            document.getElementById('mCategory').value = currentCategory;
             document.getElementById('addModal').classList.add('active'); 
         }
         function closeModal() { 
@@ -617,7 +581,7 @@
             try {
                 const res = await fetch(`${FIREBASE_DB_URL}/movies.json?nocache=` + Date.now());
                 allMoviesData = await res.json() || {};
-                renderAllRows();
+                renderMovies();
             } catch (err) {
                 console.error(err);
             }
@@ -677,89 +641,83 @@
             if (!toast) return;
             toast.innerText = msg;
             toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         }
 
-        // RENDER 4 INDIVIDUAL HORIZONTAL ROWS
-        function renderAllRows() {
-            const categories = ['tamil', 'dubbed', 'hollywood', 'series'];
-            const allList = Object.values(allMoviesData || {}).sort((a,b) => (b.date || 0) - (a.date || 0));
+        // RENDER MOVIES UNDER CURRENT CATEGORY
+        function renderMovies() {
+            const container = document.getElementById('movieContainer');
+            const countElem = document.getElementById('movieCount');
+            container.innerHTML = '';
 
-            categories.forEach(cat => {
-                const slider = document.getElementById('row-' + cat);
-                const countBadge = document.getElementById('count-' + cat);
-                slider.innerHTML = '';
+            const list = Object.values(allMoviesData || {}).filter(m => {
+                const cat = m.category || 'tamil';
+                return cat === currentCategory;
+            }).sort((a,b) => (b.date || 0) - (a.date || 0));
 
-                const movies = allList.filter(m => (m.category || 'tamil') === cat);
-                countBadge.innerText = `${movies.length} Titles`;
+            countElem.innerText = `${list.length} Titles`;
 
-                if (movies.length === 0) {
-                    slider.innerHTML = '<div style="color: #556; font-size: 12px; padding: 20px 0;">No titles yet in this category.</div>';
-                    return;
-                }
+            if (list.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 40px;">No titles in this category. Click "➕ Add Title" to add!</div>';
+                return;
+            }
 
-                movies.forEach(m => {
-                    const magnet = m.link.trim();
-                    const card = document.createElement('div');
-                    card.className = 'movie-card';
-                    card.tabIndex = 0;
+            list.forEach((m) => {
+                const magnet = m.link.trim();
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.tabIndex = 0;
 
-                    card.innerHTML = `
-                        <div class="poster-box">
-                            <span class="card-badge">${m.quality || '4K UHD'}</span>
-                            <span class="card-year">${m.year || '2024'}</span>
-                            <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'" loading="lazy">
-                        </div>
-                        <div class="movie-info">
-                            <div class="movie-name">${m.name}</div>
-                        </div>
-                    `;
+                card.innerHTML = `
+                    <div class="poster-box">
+                        <span class="card-badge">${m.quality || '4K UHD'}</span>
+                        <span class="card-year">${m.year || '2024'}</span>
+                        <img src="${m.poster}" alt="${m.name}" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'" loading="lazy">
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-name">${m.name}</div>
+                    </div>
+                `;
 
-                    // Horizontal Smooth Scroll on Focus
-                    card.addEventListener('focus', () => {
-                        card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                    });
+                // 2.5s SAFE LONG PRESS DELETE & INSTANT PLAY
+                let pressTimer = null;
+                let isLongPress = false;
 
-                    // 2.5s SAFE LONG PRESS DELETE & INSTANT PLAY ON CLICK
-                    let pressTimer = null;
-                    let isLongPress = false;
+                const startHold = () => {
+                    isLongPress = false;
+                    pressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        deleteMovie(m.id, m.name);
+                    }, 2500);
+                };
 
-                    const startHold = () => {
-                        isLongPress = false;
-                        pressTimer = setTimeout(() => {
-                            isLongPress = true;
-                            deleteMovie(m.id, m.name);
-                        }, 2500);
-                    };
+                const cancelHold = () => {
+                    clearTimeout(pressTimer);
+                };
 
-                    const cancelHold = () => {
-                        clearTimeout(pressTimer);
-                    };
+                card.addEventListener('mousedown', startHold);
+                card.addEventListener('mouseup', cancelHold);
+                card.addEventListener('touchstart', startHold, { passive: true });
+                card.addEventListener('touchend', cancelHold);
 
-                    card.addEventListener('mousedown', startHold);
-                    card.addEventListener('mouseup', cancelHold);
-                    card.addEventListener('touchstart', startHold, { passive: true });
-                    card.addEventListener('touchend', cancelHold);
-
-                    card.addEventListener('keydown', (e) => {
-                        if (e.keyCode === 13 || e.key === 'Enter') {
-                            if (!pressTimer) startHold();
-                        }
-                    });
-
-                    card.addEventListener('keyup', (e) => {
-                        if (e.keyCode === 13 || e.key === 'Enter') {
-                            cancelHold();
-                            if (!isLongPress) playMovie(magnet);
-                        }
-                    });
-
-                    card.addEventListener('click', () => {
-                        if (!isLongPress) playMovie(magnet);
-                    });
-
-                    slider.appendChild(card);
+                card.addEventListener('keydown', (e) => {
+                    if (e.keyCode === 13 || e.key === 'Enter') {
+                        if (!pressTimer) startHold();
+                    }
                 });
+
+                card.addEventListener('keyup', (e) => {
+                    if (e.keyCode === 13 || e.key === 'Enter') {
+                        cancelHold();
+                        if (!isLongPress) playMovie(magnet);
+                    }
+                });
+
+                card.addEventListener('click', () => {
+                    if (!isLongPress) playMovie(magnet);
+                });
+
+                container.appendChild(card);
             });
         }
     </script>
