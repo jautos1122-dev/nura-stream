@@ -174,6 +174,7 @@
             object-fit: cover;
             display: block;
             pointer-events: none;
+            background: #1e1e1e;
         }
 
         .movie-info {
@@ -197,7 +198,7 @@
             margin-top: 4px;
         }
 
-        /* TOAST FOR LONG PRESS NOTICE */
+        /* TOAST NOTIFICATION */
         #toast {
             position: fixed;
             bottom: 30px;
@@ -237,56 +238,90 @@
     <div id="toast"></div>
 
     <script>
-        // Splash Screen Hide after 2.4s
+        let allMovies = [];
+
         window.addEventListener('DOMContentLoaded', () => {
+            // அனிமேஷன் மறைதல்
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.visibility = 'hidden';
-                    // Focus first movie card automatically for TV remote
-                    const firstCard = document.querySelector('.movie-card');
-                    if (firstCard) firstCard.focus();
-                }, 800);
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.visibility = 'hidden';
+                        const firstCard = document.querySelector('.movie-card');
+                        if (firstCard) firstCard.focus();
+                    }, 800);
+                }
             }, 2400);
+
             loadMovies();
         });
 
-        let allMovies = [];
-
         async function loadMovies() {
+            let loaded = [];
+
+            // 1. முதலில் LocalStorage-ல் சேமிக்கப்பட்ட பழைய படங்கள் உள்ளதா எனப் பார்த்தல்
             try {
-                const res = await fetch('movies.json?t=' + Date.now());
-                allMovies = await res.json();
-                renderMovies(allMovies);
-            } catch (e) {
-                console.error("Error loading movies:", e);
-            }
+                const localData = localStorage.getItem('nura_movies') || localStorage.getItem('movies');
+                if (localData) {
+                    const parsed = JSON.parse(localData);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        loaded = parsed;
+                    }
+                }
+            } catch (e) {}
+
+            // 2. பிறகு movies.json ஃபைலில் இருந்து படங்களை எடுத்தல்
+            try {
+                const res = await fetch('movies.json?nocache=' + Date.now());
+                if (res.ok) {
+                    const jsonMovies = await res.json();
+                    if (Array.isArray(jsonMovies) && jsonMovies.length > 0) {
+                        // இரண்டும் இருந்தால் இணைத்துக் கொள்ளுதல்
+                        const combined = [...jsonMovies, ...loaded];
+                        // ஒரே படம் இரண்டு முறை வராமல் பார்த்தல்
+                        loaded = Array.from(new Map(combined.map(item => [item.title || item.name || item.magnet, item])).values());
+                    }
+                }
+            } catch (e) {}
+
+            allMovies = loaded;
+            renderMovies(allMovies);
         }
 
         function renderMovies(movies) {
             const grid = document.getElementById('moviesGrid');
             grid.innerHTML = '';
 
+            if (!movies || movies.length === 0) {
+                grid.innerHTML = '<div style="padding: 40px; color: #888; font-size: 15px;">படங்கள் ஏற்றப்படுகின்றன... தயவுசெய்து காத்திருக்கவும் அல்லது பக்கத்தை புதுப்பிக்கவும்.</div>';
+                return;
+            }
+
             movies.forEach((movie, index) => {
                 const card = document.createElement('div');
                 card.className = 'movie-card';
-                card.tabIndex = 0; // Enables TV Remote Focus
+                card.tabIndex = 0;
+
+                // பெயர், போஸ்டர், மேக்னட் லிங்க் ஆகியவற்றின் பல்வேறு ஃபீல்டுகளை ஆதரித்தல்
+                const movieTitle = movie.title || movie.name || "Movie";
+                const moviePoster = movie.poster || movie.image || movie.img || 'https://via.placeholder.com/300x450?text=No+Poster';
+                const movieMagnet = movie.magnet || movie.url || movie.link || "";
 
                 card.innerHTML = `
-                    <img src="${movie.poster || 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${movie.title}" loading="lazy">
+                    <img src="${moviePoster}" alt="${movieTitle}" onerror="this.src='https://via.placeholder.com/300x450?text=No+Poster'" loading="lazy">
                     <div class="movie-info">
-                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-title">${movieTitle}</div>
                         <div class="movie-quality">4K UHD • HDR</div>
                     </div>
                 `;
 
-                // Single Click: Play via Stremio Magnet Intent
+                // 1. கிளிக் செய்தால் Stremio / VLC-ல் ப்ளே ஆகுதல்
                 card.addEventListener('click', () => {
-                    playMovie(movie.magnet);
+                    playMovie(movieMagnet);
                 });
 
-                // 2. LONG PRESS TO DELETE (3 SECONDS) - Safe for TV
+                // 2. லாங் பிரஸ் செய்தால் மட்டுமே நீக்குதல் (Safe Delete)
                 let pressTimer = null;
                 let isLongPress = false;
 
@@ -294,26 +329,23 @@
                     isLongPress = false;
                     pressTimer = setTimeout(() => {
                         isLongPress = true;
-                        confirmDelete(movie.title, index);
-                    }, 2500); // 2.5 seconds hold
+                        confirmDelete(movieTitle, index);
+                    }, 2500); // 2.5 வினாடிகள் அழுத்திப் பிடித்தால்
                 };
 
                 const cancelPress = () => {
                     clearTimeout(pressTimer);
                 };
 
-                // Mouse / Touch Events
                 card.addEventListener('mousedown', startPress);
                 card.addEventListener('mouseup', cancelPress);
                 card.addEventListener('touchstart', startPress, { passive: true });
                 card.addEventListener('touchend', cancelPress);
 
-                // TV Remote 'OK' Button Handling (Keycode 13 / Center D-Pad)
+                // டிவி ரிமோட் OK பட்டன்
                 card.addEventListener('keydown', (e) => {
                     if (e.keyCode === 13 || e.key === 'Enter') {
-                        if (!pressTimer) {
-                            startPress();
-                        }
+                        if (!pressTimer) startPress();
                     }
                 });
 
@@ -321,7 +353,7 @@
                     if (e.keyCode === 13 || e.key === 'Enter') {
                         cancelPress();
                         if (!isLongPress) {
-                            playMovie(movie.magnet);
+                            playMovie(movieMagnet);
                         }
                     }
                 });
@@ -335,7 +367,6 @@
                 showToast("வீடியோ லிங்க் கிடைக்கவில்லை!");
                 return;
             }
-            // Stremio / TV Intent Launcher
             window.location.href = magnet;
         }
 
@@ -343,13 +374,15 @@
             const ok = confirm(`"${title}" திரைப்படத்தை நீக்க விரும்புகிறீர்களா?`);
             if (ok) {
                 allMovies.splice(index, 1);
+                localStorage.setItem('nura_movies', JSON.stringify(allMovies));
                 renderMovies(allMovies);
-                showToast("திரைப்படம் வெற்றிகரமாக நீக்கப்பட்டது.");
+                showToast("திரைப்படம் நீக்கப்பட்டது.");
             }
         }
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
+            if (!toast) return;
             toast.innerText = msg;
             toast.style.opacity = '1';
             setTimeout(() => { toast.style.opacity = '0'; }, 3000);
@@ -357,7 +390,7 @@
 
         function filterMovies() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allMovies.filter(m => m.title.toLowerCase().includes(q));
+            const filtered = allMovies.filter(m => (m.title || m.name || "").toLowerCase().includes(q));
             renderMovies(filtered);
         }
     </script>
